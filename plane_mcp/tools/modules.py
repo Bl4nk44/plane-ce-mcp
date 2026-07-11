@@ -57,9 +57,7 @@ def register_module_tools(mcp: FastMCP) -> None:
                 project_id=project_id,
                 params=params.model_dump(exclude_none=True),
             )
-        return client.modules.list_lite(
-            workspace_slug=workspace_slug, project_id=project_id, params=params
-        )
+        return client.modules.list_lite(workspace_slug=workspace_slug, project_id=project_id, params=params)
 
     @mcp.tool()
     def create_module(

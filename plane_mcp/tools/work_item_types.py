@@ -29,9 +29,7 @@ def register_work_item_type_tools(mcp: FastMCP) -> None:
         """
         client, workspace_slug = get_plane_client_context()
         if project_id:
-            return client.work_item_types.list(
-                workspace_slug=workspace_slug, project_id=project_id, params=params
-            )
+            return client.work_item_types.list(workspace_slug=workspace_slug, project_id=project_id, params=params)
         return client.workspace_work_item_types.list(workspace_slug=workspace_slug)
 
     @mcp.tool()
@@ -74,9 +72,7 @@ def register_work_item_type_tools(mcp: FastMCP) -> None:
         )
 
         if project_id:
-            return client.work_item_types.create(
-                workspace_slug=workspace_slug, project_id=project_id, data=data
-            )
+            return client.work_item_types.create(workspace_slug=workspace_slug, project_id=project_id, data=data)
         return client.workspace_work_item_types.create(workspace_slug=workspace_slug, data=data)
 
     @mcp.tool()
@@ -142,13 +138,21 @@ def register_work_item_type_tools(mcp: FastMCP) -> None:
 
         if workspace_owns_types:
             in_project = next(
-                (t for t in client.work_item_types.list(workspace_slug=workspace_slug, project_id=project_id) if (t.name or "").strip() == target),
+                (
+                    t
+                    for t in client.work_item_types.list(workspace_slug=workspace_slug, project_id=project_id)
+                    if (t.name or "").strip() == target
+                ),
                 None,
             )
             if in_project is not None:
                 return in_project
             at_workspace = next(
-                (t for t in client.workspace_work_item_types.list(workspace_slug=workspace_slug) if (t.name or "").strip() == target),
+                (
+                    t
+                    for t in client.workspace_work_item_types.list(workspace_slug=workspace_slug)
+                    if (t.name or "").strip() == target
+                ),
                 None,
             )
             if at_workspace is None:
@@ -163,9 +167,7 @@ def register_work_item_type_tools(mcp: FastMCP) -> None:
             return at_workspace
 
         # Mode B — types are per-project; enable the feature if needed, then find or create.
-        project_features = client.projects.get_features(
-            workspace_slug=workspace_slug, project_id=project_id
-        )
+        project_features = client.projects.get_features(workspace_slug=workspace_slug, project_id=project_id)
         if not project_features.model_dump().get("work_item_types"):
             client.projects.update_features(
                 workspace_slug=workspace_slug,
@@ -174,7 +176,11 @@ def register_work_item_type_tools(mcp: FastMCP) -> None:
             )
 
         existing = next(
-            (t for t in client.work_item_types.list(workspace_slug=workspace_slug, project_id=project_id) if (t.name or "").strip() == target),
+            (
+                t
+                for t in client.work_item_types.list(workspace_slug=workspace_slug, project_id=project_id)
+                if (t.name or "").strip() == target
+            ),
             None,
         )
         if existing is None:
