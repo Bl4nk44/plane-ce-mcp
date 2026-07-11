@@ -13,6 +13,12 @@ import uuid
 
 from fastmcp import Client
 from fastmcp.client.transports import StreamableHttpTransport
+from fastmcp.exceptions import ToolError
+
+# Marker emitted by the compat layer (plane_mcp/compat.py) when an endpoint is
+# missing on this Plane edition/version (e.g. issue-types on Community Edition).
+# Feature sections hitting it are skipped instead of failing the whole test.
+CE_MISSING_ENDPOINT = "does not expose the required API endpoint"
 
 
 def get_config():
@@ -22,9 +28,7 @@ def get_config():
     mcp_url = os.getenv("PLANE_TEST_MCP_URL", "http://localhost:8211")
 
     if not api_key or not workspace_slug:
-        raise RuntimeError(
-            "Missing required env vars: PLANE_TEST_API_KEY, PLANE_TEST_WORKSPACE_SLUG"
-        )
+        raise RuntimeError("Missing required env vars: PLANE_TEST_API_KEY, PLANE_TEST_WORKSPACE_SLUG")
 
     return {
         "api_key": api_key,
@@ -44,7 +48,7 @@ def extract_result(result):
         if hasattr(content, "text"):
             try:
                 return json.loads(content.text)
-            except:
+            except:  # noqa: E722
                 return {"raw": content.text}
     return {}
 
@@ -54,20 +58,19 @@ async def run_integration_test():
     Full integration test:
     1. Create a project
     2. Create work item 1
-    3. Create work item 2 
-    4. Update work item 2 with work item 1 as parent 
+    3. Create work item 2
+    4. Update work item 2 with work item 1 as parent
     5. Find or create an "Epic" work item type, and create an epic work item
+       (skipped on editions without the issue-types API, e.g. Community Edition)
     6. Update work item 2 to be under the epic
     7. List all epics (work items of the "Epic" type)
     8. Create a milestone and associate it with the project and work items
+       (skipped on editions without the milestones API)
     9. Update the milestone to change its name and description
-    10. List all milestones in the project
-    11. Delete the milestone
-    12. Delete the epic
-    13. Delete work items
-    14. Delete project
-    """ 
-    config = get_config() 
+    10. Delete work items and the epic
+    11. Delete project (always runs, even on failure — no orphans left behind)
+    """
+    config = get_config()
     unique_id = uuid.uuid4().hex[:6]
 
     transport = StreamableHttpTransport(
@@ -93,52 +96,62 @@ async def run_integration_test():
         project_id = project["id"]
         print(f"Created project: {project_id}")
 
-        # 2. Create work item 1
-        print("Creating work item 1...")
-        work_item_1_result = await client.call_tool(
-            "create_work_item",
-            {
-                "project_id": project_id,
-                "name": f"Parent Work Item {unique_id}",
-            },
-        )
-        work_item_1 = extract_result(work_item_1_result)
-        work_item_1_id = work_item_1["id"]
-        print(f"Created work item 1: {work_item_1_id}")
+        try:
+            await _run_project_scenario(client, project_id, unique_id)
+        finally:
+            # Deleting the project cascades to any work items/epics/milestones
+            # left behind by a mid-scenario failure — no orphans in the workspace.
+            print("Deleting project...")
+            await client.call_tool("delete_project", {"project_id": project_id})
+            print("Deleted project")
 
-        # 3. Create work item 2
-        print("Creating work item 2...")
-        work_item_2_result = await client.call_tool(
-            "create_work_item",
-            {
-                "project_id": project_id,
-                "name": f"Child Work Item {unique_id}",
-            },
-        )
-        work_item_2 = extract_result(work_item_2_result)
-        work_item_2_id = work_item_2["id"]
-        print(f"Created work item 2: {work_item_2_id}")
+    print("Integration test passed!")
 
-        # 4. Update work item 2 with work item 1 as parent
-        print("Setting parent relationship...")
-        await client.call_tool(
-            "update_work_item",
-            {
-                "project_id": project_id,
-                "work_item_id": work_item_2_id,
-                "parent": work_item_1_id,
-            },
-        )
-        print("Set work item 1 as parent of work item 2")
 
-        # 5. Find or create an "Epic" work item type, and create an epic work item
+async def _run_project_scenario(client, project_id: str, unique_id: str) -> None:
+    """Steps 2-10 of the integration scenario, inside the temporary project."""
+    # 2. Create work item 1
+    print("Creating work item 1...")
+    work_item_1_result = await client.call_tool(
+        "create_work_item",
+        {
+            "project_id": project_id,
+            "name": f"Parent Work Item {unique_id}",
+        },
+    )
+    work_item_1_id = extract_result(work_item_1_result)["id"]
+    print(f"Created work item 1: {work_item_1_id}")
+
+    # 3. Create work item 2
+    print("Creating work item 2...")
+    work_item_2_result = await client.call_tool(
+        "create_work_item",
+        {
+            "project_id": project_id,
+            "name": f"Child Work Item {unique_id}",
+        },
+    )
+    work_item_2_id = extract_result(work_item_2_result)["id"]
+    print(f"Created work item 2: {work_item_2_id}")
+
+    # 4. Update work item 2 with work item 1 as parent
+    print("Setting parent relationship...")
+    await client.call_tool(
+        "update_work_item",
+        {
+            "project_id": project_id,
+            "work_item_id": work_item_2_id,
+            "parent": work_item_1_id,
+        },
+    )
+    print("Set work item 1 as parent of work item 2")
+
+    # 5-7. Epic flow — requires the issue-types API (not available on CE).
+    epic_id = None
+    try:
         print("Finding or creating 'Epic' work item type...")
-        epic_type_result = await client.call_tool(
-            "resolve_work_item_type", {"project_id": project_id, "name": "Epic"}
-        )
-        epic_type = extract_result(epic_type_result)
-
-        epic_type_id = epic_type["id"]
+        epic_type_result = await client.call_tool("resolve_work_item_type", {"project_id": project_id, "name": "Epic"})
+        epic_type_id = extract_result(epic_type_result)["id"]
         print(f"Using 'Epic' work item type: {epic_type_id}")
 
         print("Creating epic...")
@@ -150,11 +163,7 @@ async def run_integration_test():
                 "type_id": epic_type_id,
             },
         )
-
-        epic = extract_result(epic_result)
-
-        epic_id = epic["id"]
-
+        epic_id = extract_result(epic_result)["id"]
         print(f"Created epic: {epic_id}")
 
         # 6. Update work item 2 to be under the epic
@@ -180,23 +189,36 @@ async def run_integration_test():
         )
         epics = extract_result(epics_result)["results"]
         print(f"Epics in project: {[e['id'] for e in epics]}")
+    except ToolError as e:
+        if CE_MISSING_ENDPOINT not in str(e):
+            raise
+        print(f"SKIPPED epic flow (not supported by this Plane edition): {e}")
 
-        # 8. Create a milestone and associate it with the project and work items
+    # 8-9. Milestone flow — not available on all editions either.
+    associated_ids = [wid for wid in (epic_id, work_item_1_id, work_item_2_id) if wid]
+    try:
         print("Creating milestone...")
         milestone_result = await client.call_tool(
             "create_milestone",
             {
                 "project_id": project_id,
-                "name": f"Milestone {unique_id}",
-                "description": "Integration test milestone",   
-                "associated_work_item_ids": [epic_id, work_item_1_id, work_item_2_id],
+                "title": f"Milestone {unique_id}",
             },
         )
-        milestone = extract_result(milestone_result)
-        milestone_id = milestone["id"]
+        milestone_id = extract_result(milestone_result)["id"]
+        print(f"Created milestone: {milestone_id}")
+
+        print("Associating work items with milestone...")
+        await client.call_tool(
+            "manage_milestone_work_items",
+            {
+                "project_id": project_id,
+                "milestone_id": milestone_id,
+                "add_ids": associated_ids,
+            },
+        )
 
         print("List work items associated with milestone...")
-
         milestone_details_result = await client.call_tool(
             "list_milestone_work_items",
             {
@@ -204,54 +226,45 @@ async def run_integration_test():
                 "milestone_id": milestone_id,
             },
         )
-
         milestone_work_items = extract_result(milestone_details_result)
         print(f"Work items associated with milestone: {[wi['id'] for wi in milestone_work_items]}")
 
-        print(f"Created milestone: {milestone_id}")
-        
-        # 9. Update the milestone to change its name and description
         print("Updating milestone...")
         await client.call_tool(
-            "update_milestone", 
-            { 
-                "project_id": project_id, 
-                "milestone_id": milestone_id, 
-                "name": f"Updated Milestone {unique_id}", 
-                "description": "Updated description for integration test milestone" 
+            "update_milestone",
+            {
+                "project_id": project_id,
+                "milestone_id": milestone_id,
+                "title": f"Updated Milestone {unique_id}",
             },
-        ) 
-
+        )
         print("Updated milestone")
+    except ToolError as e:
+        if CE_MISSING_ENDPOINT not in str(e):
+            raise
+        print(f"SKIPPED milestone flow (not supported by this Plane edition): {e}")
 
-        # 8. Delete work items
-        print("Deleting work items...")
-        await client.call_tool(
-            "delete_work_item",
-            {"project_id": project_id, "work_item_id": work_item_2_id},
-        )
-        print("Deleted work item 2")
+    # 10. Delete work items (and the epic when it was created)
+    print("Deleting work items...")
+    await client.call_tool(
+        "delete_work_item",
+        {"project_id": project_id, "work_item_id": work_item_2_id},
+    )
+    print("Deleted work item 2")
 
-        await client.call_tool(
-            "delete_work_item",
-            {"project_id": project_id, "work_item_id": work_item_1_id},
-        )
-        print("Deleted work item 1")
+    await client.call_tool(
+        "delete_work_item",
+        {"project_id": project_id, "work_item_id": work_item_1_id},
+    )
+    print("Deleted work item 1")
 
-        # 9. Delete epic
+    if epic_id:
         print("Deleting epic...")
         await client.call_tool(
             "delete_work_item",
             {"project_id": project_id, "work_item_id": epic_id},
         )
         print("Deleted epic")
-
-        # 10. Delete project
-        print("Deleting project...")
-        await client.call_tool("delete_project", {"project_id": project_id})
-        print("Deleted project")
-
-        print("Integration test passed!")
 
 
 def test_full_integration():
