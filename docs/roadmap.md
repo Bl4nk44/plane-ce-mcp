@@ -104,8 +104,12 @@ Existing tools in `plane_mcp/tools/pages.py`: `list_pages`, `retrieve_page`,
       (2026-07-12: internal-API adapter `plane_mcp/internal_api.py` — session
       sign-in + read-only project-pages routes, wired as compat fallbacks for
       `pages.list_project_pages`/`pages.retrieve_project_page`. Set
-      `PLANE_INTERNAL_API_EMAIL`/`PASSWORD` to enable; happy path pending live
-      verification with a real account. Workspace pages: no CE equivalent.)
+      `PLANE_INTERNAL_API_EMAIL`/`PASSWORD` to enable. Happy path verified live
+      2026-07-12 with the dedicated `mcp-reader` account: create/list/retrieve
+      incl. description_html through the public read-only endpoint. The account
+      must be a **project member** (workspace membership is not enough — pages
+      403 otherwise) and private pages stay owner-only by Plane design.
+      Workspace pages: no CE equivalent.)
 - [ ] E12.3 — Add content truncation to `retrieve_page`: `max_length` param
       (env default `PLANE_PAGES_MAX_CONTENT_LENGTH`), response flags truncation.
       Page bodies can be large — external agents need bounded output.
