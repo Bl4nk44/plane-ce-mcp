@@ -4,7 +4,7 @@ import json
 import logging
 import os
 import sys
-from contextlib import asynccontextmanager
+from contextlib import AsyncExitStack, asynccontextmanager
 from datetime import datetime, timezone
 from enum import Enum
 
@@ -14,7 +14,7 @@ from starlette.applications import Starlette
 from starlette.middleware.cors import CORSMiddleware
 from starlette.routing import Mount
 
-from plane_mcp.server import get_header_mcp, get_oauth_mcp, get_stdio_mcp
+from plane_mcp.server import get_header_mcp, get_oauth_mcp, get_readonly_header_mcp, get_stdio_mcp
 
 LOG_USER_INFO: bool = os.getenv("LOG_USER_INFO", "").lower() == "true"
 
@@ -116,14 +116,17 @@ class ServerMode(Enum):
     HTTP = "http"
 
 
-@asynccontextmanager
-async def combined_lifespan(oauth_app, header_app, sse_app):
-    """Combine lifespans from both OAuth and Header MCP apps."""
-    # Start both lifespans
-    async with oauth_app.lifespan(oauth_app):
-        async with header_app.lifespan(header_app):
-            async with sse_app.lifespan(sse_app):
-                yield
+def combined_lifespan(*apps):
+    """Combine the lifespans of several mounted MCP apps into one."""
+
+    @asynccontextmanager
+    async def lifespan(_app):
+        async with AsyncExitStack() as stack:
+            for mounted in apps:
+                await stack.enter_async_context(mounted.lifespan(mounted))
+            yield
+
+    return lifespan
 
 
 def _build_http_app(prefix: str) -> Starlette:
@@ -131,19 +134,28 @@ def _build_http_app(prefix: str) -> Starlette:
 
     OAuth (and the OAuth-only SSE transport) requires provider credentials.
     On self-host deployments PAT header auth is the primary mode, so when
-    OAuth is not configured we serve only /http/api-key instead of failing.
+    OAuth is not configured we serve only the header-auth endpoints instead
+    of failing. The read-only endpoint (/http/api-key-readonly/mcp) exposes
+    only list/retrieve/get/count/search/read tools — the surface meant for
+    external agents (Tailscale Funnel, Perplexity).
     """
     header_app = get_header_mcp().http_app(stateless_http=True)
+    readonly_app = get_readonly_header_mcp().http_app(stateless_http=True)
 
     if not os.getenv("PLANE_OAUTH_PROVIDER_CLIENT_ID"):
         logger.warning(
             "PLANE_OAUTH_PROVIDER_CLIENT_ID not set - OAuth and SSE endpoints disabled, "
-            "serving header (PAT) auth only at %s/http/api-key/mcp",
+            "serving header (PAT) auth at %s/http/api-key/mcp and read-only at "
+            "%s/http/api-key-readonly/mcp",
+            prefix,
             prefix,
         )
         return Starlette(
-            routes=[Mount(prefix + "/http/api-key", app=header_app)],
-            lifespan=lambda app: header_app.lifespan(header_app),
+            routes=[
+                Mount(prefix + "/http/api-key-readonly", app=readonly_app),
+                Mount(prefix + "/http/api-key", app=header_app),
+            ],
+            lifespan=combined_lifespan(header_app, readonly_app),
         )
 
     oauth_mcp = get_oauth_mcp(prefix + "/http")
@@ -163,12 +175,13 @@ def _build_http_app(prefix: str) -> Starlette:
             # Well-known routes for OAuth and Header HTTP
             *oauth_well_known,
             *sse_well_known,
-            # Mount both MCP servers
+            # Mount the MCP servers (most specific paths first)
+            Mount(prefix + "/http/api-key-readonly", app=readonly_app),
             Mount(prefix + "/http/api-key", app=header_app),
             Mount(prefix + "/http", app=oauth_app),
             Mount(prefix or "/", app=sse_app),
         ],
-        lifespan=lambda app: combined_lifespan(oauth_app, header_app, sse_app),
+        lifespan=combined_lifespan(oauth_app, header_app, readonly_app, sse_app),
     )
 
 
