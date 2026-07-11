@@ -26,6 +26,7 @@ Verified 2026-07-11 against local self-host **Plane CE v1.3.1** (`edition: PLANE
 | 4 | Initiatives API missing | `/api/v1/workspaces/{ws}/initiatives/` | CE 1.3.1 | **CONFIRMED 404** — EE/Cloud feature |
 | 5 | Estimates API missing | `.../projects/{p}/estimates/` | CE 1.3.1 | **CONFIRMED 404** |
 | 6 | Features/capability endpoint missing | `/api/v1/workspaces/{ws}/features/` | CE 1.3.1 | **CONFIRMED 404** — capability detection cannot rely on a features endpoint; probe target endpoints directly |
+| 7 | Lite endpoints missing (SDK `list_lite`/`get_members_lite`) | `/projects-lite/`, `/cycles-lite/`, `/modules-lite/`, `/project-members-lite/`, `/members-lite/` | CE 1.3.1 | **CONFIRMED 404, HANDLED** — compat layer (`plane_mcp/compat.py` `FALLBACKS`) transparently falls back to the full endpoints and re-shapes the response into the lite models; fallback logged at WARNING |
 
 Verified working on CE 1.3.1 (200): `projects`, `work-items`, legacy `issues`, `states`,
 `labels`, `cycles`, `modules`, `intake-issues`, workspace `members`, project `members`.
@@ -33,14 +34,22 @@ Verified working on CE 1.3.1 (200): `projects`, `work-items`, legacy `issues`, `
 Instance metadata (no auth): `GET /api/instances/` → `instance.current_version`,
 `instance.edition` — usable for capability profiling.
 
-## Fallback strategy
+## Fallback strategy (implemented — `plane_mcp/compat.py`)
+
+The boundary is `wrap_client()`: `get_plane_client_context()` returns the SDK client
+wrapped in a proxy (`CompatClientProxy`) so every SDK call passes through the compat
+layer. FastMCP catches tool exceptions below its middleware, so a middleware cannot do
+this — the client proxy is the only central point that works.
 
 1. Call the current endpoint first (what `plane-sdk` uses).
-2. On 404 that looks like a missing *endpoint* (not a missing resource), fall back to the
-   legacy path where one exists.
-3. Log every fallback at WARNING with: tool name, failed endpoint, endpoint used instead.
-4. Fallbacks live in a shared compatibility layer (planned, Stage 5) — never inline in
-   individual tools.
+2. On 404 classified as missing *endpoint* (not missing resource), consult the
+   `FALLBACKS` registry (operation path → handler, e.g. `projects.list_lite` →
+   full `projects.list` + envelope conversion). No registered fallback → clear
+   ToolError pointing at this document.
+3. Every fallback is logged at WARNING (JSON log: operation, workspace slug).
+4. All other SDK errors (401/403, timeouts, other HTTP) are translated into
+   actionable ToolError messages — raw SDK exceptions never reach an MCP client.
+5. Fallbacks live only in `plane_mcp/compat.py` — never inline in individual tools.
 
 Distinguishing "resource not found" from "endpoint not available" (verified on CE 1.3.1 —
 both are `404` + `application/json`, differ only in body text):

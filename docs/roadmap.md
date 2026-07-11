@@ -29,10 +29,19 @@ checklist; keep it updated as work lands.
 - [ ] Map each tool to Plane API endpoints + minimum Plane version.
 
 ## Stage 5 — Self-host compatibility
-- [ ] Central compatibility layer (shared wrapper, not per-tool hacks) for endpoint
+- [x] Central compatibility layer (shared wrapper, not per-tool hacks) for endpoint
       differences (`/work-items/` vs legacy `/issues/`, lite endpoints).
-- [ ] Fallback strategy: try current endpoint, fall back to legacy, log the fallback.
-- [ ] Capability detection / env profile for self-host vs Cloud.
+      (2026-07-11: `plane_mcp/compat.py` — client proxy via `wrap_client()`, all SDK
+      errors → actionable ToolErrors; `/work-items/` works on CE 1.3.1, no legacy
+      fallback needed yet.)
+- [x] Fallback strategy: try current endpoint, fall back to legacy, log the fallback.
+      (2026-07-11: `FALLBACKS` registry — 5 lite endpoints missing on CE 1.3.1 fall
+      back to full endpoints with response re-shaping; WARNING logged. Verified live:
+      list_projects, list_cycles, list_modules, get_project_members,
+      get_workspace_members all work on CE.)
+- [ ] Capability detection / env profile for self-host vs Cloud
+      (`GET /api/instances/` → version + edition; needed once behavior must branch
+      up-front rather than react to 404s).
 
 ## Stage 6 — Auth & sessions
 - [x] Primary mode: PAT via `x-api-key` + `x-workspace-slug` (and stdio env vars).
