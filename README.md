@@ -354,8 +354,9 @@ The server provides comprehensive tools for interacting with Plane. All tools us
 
 | Tool Name | Description |
 |-----------|-------------|
-| `list_pages` | List pages (workspace, or a project's if `project_id` given) |
-| `retrieve_page` | Retrieve a page by ID (workspace, or project's if `project_id` given) |
+| `list_pages` | List pages — metadata only (workspace, or a project's if `project_id` given) |
+| `retrieve_page` | Retrieve a page incl. content; optional `max_length` truncation (env default `PLANE_PAGES_MAX_CONTENT_LENGTH`) |
+| `search_pages` | Search pages by title, optionally inside content (client-side, case-insensitive) |
 | `create_page` | Create a workspace or project page |
 
 ### Workspaces

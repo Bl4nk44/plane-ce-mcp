@@ -110,11 +110,13 @@ Existing tools in `plane_mcp/tools/pages.py`: `list_pages`, `retrieve_page`,
       must be a **project member** (workspace membership is not enough — pages
       403 otherwise) and private pages stay owner-only by Plane design.
       Workspace pages: no CE equivalent.)
-- [ ] E12.3 — Add content truncation to `retrieve_page`: `max_length` param
-      (env default `PLANE_PAGES_MAX_CONTENT_LENGTH`), response flags truncation.
-      Page bodies can be large — external agents need bounded output.
-- [ ] E12.4 — Add `search_pages`: full-text via Plane API if supported, otherwise
-      client-side title/content filter over `list_pages`.
+- [x] E12.3 — Add content truncation to `retrieve_page`: `max_length` param
+      (env default `PLANE_PAGES_MAX_CONTENT_LENGTH`), response flags truncation
+      (`content_truncated` + `total_content_length`). (2026-07-12)
+- [x] E12.4 — Add `search_pages`: Plane has no page-search API, so client-side
+      case-insensitive title filter + optional content search (per-page detail
+      fetch capped at 30). Read-only prefix → automatically on the public
+      surface. (2026-07-12)
 - [ ] E12.5 — Output format review: title, content, project, timestamps — easy for
       an external agent (Perplexity) to interpret.
 - [ ] E12.6 — Test Pages tools locally (curl + Claude Code), extend
