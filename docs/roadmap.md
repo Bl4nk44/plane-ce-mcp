@@ -91,8 +91,13 @@ Existing tools in `plane_mcp/tools/pages.py`: `list_pages`, `retrieve_page`,
       (2026-07-11: CE v1.3.1 has NO public Pages API — all `/api/v1/.../pages/`
       paths 404; pages exist only behind the session-auth internal API. Stage 12
       blocked until Plane ships the public API or we add an internal-API adapter.)
-- [ ] E12.2 — Verify existing tools (`list_pages`, `retrieve_page`,
+- [x] E12.2 — Verify existing tools (`list_pages`, `retrieve_page`,
       `list_work_item_pages`) against self-host; fix what 404s.
+      (2026-07-12: internal-API adapter `plane_mcp/internal_api.py` — session
+      sign-in + read-only project-pages routes, wired as compat fallbacks for
+      `pages.list_project_pages`/`pages.retrieve_project_page`. Set
+      `PLANE_INTERNAL_API_EMAIL`/`PASSWORD` to enable; happy path pending live
+      verification with a real account. Workspace pages: no CE equivalent.)
 - [ ] E12.3 — Add content truncation to `retrieve_page`: `max_length` param
       (env default `PLANE_PAGES_MAX_CONTENT_LENGTH`), response flags truncation.
       Page bodies can be large — external agents need bounded output.

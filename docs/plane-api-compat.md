@@ -21,7 +21,7 @@ Verified 2026-07-11 against local self-host **Plane CE v1.3.1** (`edition: PLANE
 | # | Symptom | Endpoint | Affects | Status |
 |---|---|---|---|---|
 | 1 | 404 on `/work-items/` paths | `/api/v1/workspaces/{ws}/projects/{p}/work-items/` | Older self-host releases | **NOT an issue on CE 1.3.1** — both `/work-items/` and legacy `/issues/` return 200 |
-| 2 | Pages API missing | `/api/v1/workspaces/{ws}/pages/` and `.../projects/{p}/pages/` | CE 1.3.1 | **CONFIRMED 404** (missing endpoint). Pages exist only in the internal web API (`/api/workspaces/...` → 401 with PAT, session-cookie auth only). Stage 12 blocked on public API — options: newer Plane release, or internal-API adapter (fragile, session auth) |
+| 2 | Pages API missing | `/api/v1/workspaces/{ws}/pages/` and `.../projects/{p}/pages/` | CE 1.3.1 | **CONFIRMED 404, HANDLED (project pages, read-only)** — internal-API adapter (`plane_mcp/internal_api.py`): session sign-in with `PLANE_INTERNAL_API_EMAIL`/`PASSWORD`, fallback wired for `pages.list_project_pages` and `pages.retrieve_project_page`. Workspace-level pages have no internal equivalent on CE (project-scoped only). Without credentials the tools return an actionable message naming the env vars |
 | 3 | Work item types API missing | `.../projects/{p}/issue-types/` | CE 1.3.1 | **CONFIRMED 404** — EE/Cloud feature. `resolve_work_item_type` / Epic-by-type flows won't work on CE |
 | 4 | Initiatives API missing | `/api/v1/workspaces/{ws}/initiatives/` | CE 1.3.1 | **CONFIRMED 404** — EE/Cloud feature |
 | 5 | Estimates API missing | `.../projects/{p}/estimates/` | CE 1.3.1 | **CONFIRMED 404** |
@@ -60,6 +60,23 @@ both are `404` + `application/json`, differ only in body text):
 
 The compatibility layer should match on the error message text to decide whether a
 fallback (legacy path) is worth attempting.
+
+## Internal-API adapter (pages on CE)
+
+Routes pinned from Plane v1.3.1 sources (`apps/api/plane/authentication/urls.py`,
+`apps/api/plane/app/urls/page.py`) and verified against the local instance:
+
+- Auth: `GET /auth/get-csrf-token/` (csrftoken cookie + JSON token), then
+  `POST /auth/sign-in/` (form: email, password, csrfmiddlewaretoken; Referer
+  header required) → redirect + session cookie; `GET /api/users/me/` confirms.
+  Failed sign-in redirects with `error_code` query params.
+- Pages (project-scoped only on CE): `GET /api/workspaces/{slug}/projects/{pid}/pages/`
+  (list) and `.../pages/{page_id}/` (detail, `PageDetailSerializer` incl.
+  `description_html`; pass `track_visit=false`). The separate
+  `.../description/` endpoint streams the yjs **binary** — not useful for text.
+- The internal API is not a stable contract: re-verify these routes after every
+  Plane upgrade (they are exercised by `tests/test_internal_api.py` against
+  mocked responses and by the manual checklist against the live instance).
 
 ## Version matrix
 
