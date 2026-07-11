@@ -125,6 +125,31 @@ The full staged plan lives in `docs/roadmap.md`. Manual verification checklist: 
 - Merge selectively; run the self-host test checklist after every sync.
 - Fixes that are general (not self-host-specific hacks) should be offered upstream as PRs.
 
+## Session Memory (memorygraph MCP — use actively)
+
+Sessions are frequently restarted — persist important context to the memorygraph MCP
+server so nothing critical is lost between sessions.
+
+**At session start / before tackling a problem:**
+- `recall_memories(query="<problem description>")` — check whether it was already
+  solved or investigated. For exact names (tool, endpoint, error code) prefer
+  `search_memories` with tags.
+
+**Store during work (don't wait to be asked)** — tag every entry `plane-mcp`:
+- Confirmed self-host vs Cloud API difference (also goes in `docs/plane-api-compat.md`;
+  memory entry = quick pointer + verdict) → type `problem`/`solution`.
+- Root cause of a non-trivial bug in a tool, auth, or the SDK → `problem` + `solution`.
+- Decision made mid-work that isn't committed anywhere yet (chosen approach for
+  Stage 12/13, rejected alternatives and why) → `project`.
+- Working command/config specific to the local self-host instance (URLs, ports,
+  test project slug) → `command`/`workflow`.
+- Current work-in-progress state at the end of a session: what's done, what's next,
+  which roadmap item is active → `project`.
+
+**Do not store:** anything already in git, code, CLAUDE.md, or `docs/` (link to it
+instead); secrets or API keys. Link related entries with `create_relationship`;
+update stale entries with `update_memory` instead of duplicating.
+
 ## Project Docs
 
 | File | Content |
