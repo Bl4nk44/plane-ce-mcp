@@ -126,6 +126,52 @@ async def combined_lifespan(oauth_app, header_app, sse_app):
                 yield
 
 
+def _build_http_app(prefix: str) -> Starlette:
+    """Build the Starlette app for HTTP mode.
+
+    OAuth (and the OAuth-only SSE transport) requires provider credentials.
+    On self-host deployments PAT header auth is the primary mode, so when
+    OAuth is not configured we serve only /http/api-key instead of failing.
+    """
+    header_app = get_header_mcp().http_app(stateless_http=True)
+
+    if not os.getenv("PLANE_OAUTH_PROVIDER_CLIENT_ID"):
+        logger.warning(
+            "PLANE_OAUTH_PROVIDER_CLIENT_ID not set - OAuth and SSE endpoints disabled, "
+            "serving header (PAT) auth only at %s/http/api-key/mcp",
+            prefix,
+        )
+        return Starlette(
+            routes=[Mount(prefix + "/http/api-key", app=header_app)],
+            lifespan=lambda app: header_app.lifespan(header_app),
+        )
+
+    oauth_mcp = get_oauth_mcp(prefix + "/http")
+    oauth_app = oauth_mcp.http_app(stateless_http=True)
+
+    sse_mcp = get_oauth_mcp(prefix)
+    sse_app = sse_mcp.http_app(transport="sse")
+
+    # mcp_path is appended to the auth provider's base_url to form the
+    # advertised resource URL. base_url already carries the prefix, so these
+    # stay at /mcp and /sse to avoid double-prefixing.
+    oauth_well_known = oauth_mcp.auth.get_well_known_routes(mcp_path="/mcp")
+    sse_well_known = sse_mcp.auth.get_well_known_routes(mcp_path="/sse")
+
+    return Starlette(
+        routes=[
+            # Well-known routes for OAuth and Header HTTP
+            *oauth_well_known,
+            *sse_well_known,
+            # Mount both MCP servers
+            Mount(prefix + "/http/api-key", app=header_app),
+            Mount(prefix + "/http", app=oauth_app),
+            Mount(prefix or "/", app=sse_app),
+        ],
+        lifespan=lambda app: combined_lifespan(oauth_app, header_app, sse_app),
+    )
+
+
 def main() -> None:
     """Run the MCP server."""
     server_mode = ServerMode.STDIO
@@ -145,31 +191,7 @@ def main() -> None:
     if server_mode == ServerMode.HTTP:
         prefix = os.getenv("MCP_PATH_PREFIX") or ""
 
-        oauth_mcp = get_oauth_mcp(prefix + "/http")
-        oauth_app = oauth_mcp.http_app(stateless_http=True)
-        header_app = get_header_mcp().http_app(stateless_http=True)
-
-        sse_mcp = get_oauth_mcp(prefix)
-        sse_app = sse_mcp.http_app(transport="sse")
-
-        # mcp_path is appended to the auth provider's base_url to form the
-        # advertised resource URL. base_url already carries the prefix, so these
-        # stay at /mcp and /sse to avoid double-prefixing.
-        oauth_well_known = oauth_mcp.auth.get_well_known_routes(mcp_path="/mcp")
-        sse_well_known = sse_mcp.auth.get_well_known_routes(mcp_path="/sse")
-
-        app = Starlette(
-            routes=[
-                # Well-known routes for OAuth and Header HTTP
-                *oauth_well_known,
-                *sse_well_known,
-                # Mount both MCP servers
-                Mount(prefix + "/http/api-key", app=header_app),
-                Mount(prefix + "/http", app=oauth_app),
-                Mount(prefix or "/", app=sse_app),
-            ],
-            lifespan=lambda app: combined_lifespan(oauth_app, header_app, sse_app),
-        )
+        app = _build_http_app(prefix)
 
         app.add_middleware(
             CORSMiddleware,
