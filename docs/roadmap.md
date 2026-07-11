@@ -135,9 +135,13 @@ Perplexity gets a public HTTPS endpoint with Bearer/OAuth.
       (b) minimal `/oauth/token` Client Credentials endpoint issuing a short-lived
       Bearer (TTL ~1h) mapped 1:1 to a PAT — no full OIDC.
 - [ ] E13.3 — Test with curl: obtain token, list tools on `/mcp` with Bearer.
-- [ ] E13.4 — Read-only tool surface for external agents: expose only `list_*` /
+- [x] E13.4 — Read-only tool surface for external agents: expose only `list_*` /
       `retrieve_*` / `search_*` (no `create_*`/`update_*`/`delete_*`) on the public
       endpoint — chat must not mutate Plane data accidentally.
+      (2026-07-12: `/http/api-key-readonly/mcp` — 59/140 tools, prefix filter in
+      `get_readonly_header_mcp()`; only this path is exposed through Tailscale
+      Funnel on :8443, verified from the public internet. `resolve_*` excluded —
+      it creates work item types.)
 - [ ] E13.5 — Add Custom Remote Connector in Perplexity (Settings → Connectors),
       verify end-to-end: question in Perplexity → data from Plane
       (`list_pages`, `retrieve_page`, `list_work_items`).

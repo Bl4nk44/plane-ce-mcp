@@ -25,16 +25,27 @@ https://<machine>.<tailnet>.ts.net/http/api-key/mcp
 
 Headers: `Authorization: Bearer <PAT>` (or `x-api-key`) + `x-workspace-slug`.
 
-**Production endpoint (2026-07-12):** the server runs on the always-on home
-server (`ubuntu`, same host as Plane):
+**Production endpoints (2026-07-12):** the server runs on the always-on home
+server (`ubuntu`, same host as Plane). Port 443 on that host is owned by an
+existing Caddy container, so the port layout is:
 
-```
-https://ubuntu.tail85e545.ts.net/http/api-key/mcp
-```
+| Audience | URL | Tools |
+|---|---|---|
+| Tailnet devices (full access) | `http://100.126.34.117:8211/http/api-key/mcp` (or `http://ubuntu.<tailnet>.ts.net:8211/...`) | 140 (full) |
+| Public internet via Funnel (Perplexity etc.) | `https://ubuntu.<tailnet>.ts.net:8443/http/api-key-readonly/mcp` | 59 (read-only) |
 
-Verified with a full MCP session (140 tools listed, `get_instance_info`,
-`list_projects`) through tailnet TLS. The earlier desktop instance
-(`win-11`) has been switched off (`tailscale serve --https=443 off`).
+Tailnet traffic is WireGuard-encrypted end to end, so plain HTTP on 8211 is
+transport-secure inside the tailnet; the Funnel port carries real TLS. Only
+the read-only path is funneled (`tailscale funnel --bg --https=8443
+--set-path=/http/api-key-readonly http://localhost:8211/http/api-key-readonly`)
+— the full endpoint is not reachable from the internet (verified: other paths
+404 at the Tailscale edge, port 443 closed publicly). Both endpoints verified
+with full MCP sessions; the read-only surface exposes 0 mutating tools.
+
+Note: `tailscale serve` on 443/10000 could not be used for the tailnet-TLS
+variant — 443 is taken by the existing Caddy container and the 10000 handler
+consistently failed TLS handshakes from WSL clients. Direct 8211 is simpler
+and equally protected inside the tailnet.
 
 ### WSL caveat (MagicDNS)
 
