@@ -114,12 +114,13 @@ Server already ships OAuth (`PlaneOAuthProvider`, `/oauth/mcp`) and PAT header a
 (`/http/api-key/mcp`). Strategy: internal clients (Claude Code, Cursor) keep PAT;
 Perplexity gets a public HTTPS endpoint with Bearer/OAuth.
 
-- [ ] E13.1 — HTTPS in front of the MCP container: Caddy or Nginx TLS terminator in
-      compose, public URL e.g. `https://plane-mcp.<domain>/mcp`.
-      (2026-07-12: `deploy/` ready — docker-compose.yml [mcp + caddy, healthcheck],
-      Caddyfile [auto-TLS, only MCP routes exposed], `.env.deploy.example` with
-      `MCP_PUBLIC_DOMAIN`. Remaining: pick the domain, point DNS at the host,
-      `docker compose up -d --build`, then live TLS check.)
+- [x] E13.1 — HTTPS in front of the MCP server.
+      (2026-07-12: **path chosen = Tailscale Serve/Funnel**, see
+      `docs/tailscale-deployment.md`. Serve verified live: full MCP session over
+      `https://win-11.<tailnet>.ts.net/http/api-key/mcp`. Funnel for Perplexity
+      deliberately deferred until E13.4 read-only surface. Caddy stack in
+      `deploy/` kept as the non-Tailscale alternative. Remaining nicety: move
+      the server to the always-on Plane host per the doc.)
 - [ ] E13.2 — Auth for Perplexity Remote Connector — decide and implement ONE:
       (a) reuse existing OAuth provider (check Perplexity redirect URI, add to
       `PLANE_OAUTH_ALLOWED_REDIRECT_URIS`), or
