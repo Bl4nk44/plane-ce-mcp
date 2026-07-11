@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ruff check:*)",
+      "Bash(ruff format:*)",
+      "Bash(pytest:*)",
+      "Bash(uv pip install -e:*)",
+      "Bash(python -m plane_mcp:*)",
+      "Bash(docker build:*)",
+      "Bash(git fetch upstream:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(git status)"
+    ]
+  }
+}

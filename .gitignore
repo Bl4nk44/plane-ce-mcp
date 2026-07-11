@@ -56,3 +56,7 @@ dmypy.json
 
 # Ignore cursor AI rules
 .cursor/rules/codacy.mdc
+
+# Claude Code harness is part of this fork (overrides global ignore)
+!.claude/
+.claude/settings.local.json

@@ -88,3 +88,47 @@ Integration tests in `tests/test_integration.py` use `FastMCP.Client` with `Stre
 | `PLANE_OAUTH_PROVIDER_*` | http/sse OAuth | OAuth client credentials and base URL |
 | `PLANE_OAUTH_ALLOWED_REDIRECT_URIS` | http/sse OAuth (optional) | Comma-separated redirect URI patterns appended to the built-in allowlist (onboard clients without a release) |
 | `LOG_USER_INFO` | all (optional, default: false) | When `true`, include user info (PII such as display name) in logs alongside the opaque user id |
+
+## Fork Mission
+
+This repository is a fork of `makeplane/plane-mcp-server` (remote: `upstream`). Its purpose is to make the MCP server work reliably against a **self-hosted Plane instance (Community Edition, Docker)** while remaining compatible with Plane Cloud.
+
+**Current phase: self-host stabilization.** Priorities, in order:
+1. Critical daily-use tools work against self-host: work items (create/update/list), projects, cycles, modules, states, labels.
+2. Consistent error handling and diagnosability (404/401 must produce actionable messages, not stack traces).
+3. Self-host vs Cloud differences documented and handled (see `docs/plane-api-compat.md`).
+4. Pages/Docs tools solid + public read-only HTTPS endpoint for external agents
+   (Perplexity) — see roadmap stages 12–13.
+5. Nice-to-haves (stats, reports, extra tools) come after the above.
+
+The full staged plan lives in `docs/roadmap.md`. Manual verification checklist: `docs/self-host-testing.md`.
+
+## Rules for New or Modified Tools
+
+- Follow the existing tool pattern (see Tools section above). One domain per module, registered via `register_*_tools` in `tools/__init__.py`.
+- Every tool that hits the Plane API must handle: 404 (missing resource OR endpoint not available on this Plane version), 401/403 (auth), timeouts. Return a clear error message naming the resource and endpoint — never let a raw SDK exception surface to the MCP client.
+- Endpoint differences between Plane versions (e.g. `/work-items/` vs legacy `/issues/`, lite endpoints) are handled centrally, not with per-tool hacks. Compatibility notes and fallback strategy: `docs/plane-api-compat.md`.
+- Log fallbacks when they trigger (which endpoint failed, which was used instead) so self-host issues are diagnosable from logs.
+- New tool = docstring with Args/Returns + entry in README tool tables + manual check against the local self-host instance before merge.
+
+## Prohibitions
+
+- Do NOT change or remove existing tool signatures/behavior without a fallback path for self-host — MCP clients depend on them.
+- Do NOT add dependencies without justification; pin exact versions for anything security-relevant.
+- Do NOT rely on Cloud-only endpoints or features without a capability check or documented fallback.
+- Do NOT merge tool changes that were not exercised against the local self-host Plane (checklist in `docs/self-host-testing.md`).
+- Do NOT edit upstream-owned sections of this file heavily — fork-specific guidance goes below "Fork Mission" to keep upstream syncs mergeable.
+
+## Upstream Sync
+
+- Remote `upstream` = `makeplane/plane-mcp-server`. Review upstream changes roughly monthly: `git fetch upstream && git log --oneline main..upstream/main`.
+- Merge selectively; run the self-host test checklist after every sync.
+- Fixes that are general (not self-host-specific hacks) should be offered upstream as PRs.
+
+## Project Docs
+
+| File | Content |
+|---|---|
+| `docs/roadmap.md` | Staged plan (audit → harness → CI → compat → auth → docker → tools → tests → docs → upstream sync) |
+| `docs/plane-api-compat.md` | Self-host vs Cloud API differences, endpoint mapping, fallback strategy |
+| `docs/self-host-testing.md` | Manual test checklist run before merging tool changes |
