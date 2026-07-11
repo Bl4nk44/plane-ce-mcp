@@ -31,7 +31,7 @@ from plane.models.projects import PaginatedProjectLiteResponse, PaginatedProject
 from plane.models.query_params import PaginatedQueryParams
 from plane.models.workspaces import PaginatedWorkspaceMemberResponse
 
-from plane_mcp.internal_api import get_internal_client
+from plane_mcp.internal_api import get_internal_client, internal_credentials_configured
 
 logger = logging.getLogger("fastmcp.plane_mcp.compat")
 
@@ -328,7 +328,16 @@ def describe_instance(base_url: str) -> dict[str, Any]:
         "compat_reference": COMPAT_DOC,
     }
     if edition == "PLANE_COMMUNITY":
-        info["unavailable_features"] = CE_UNAVAILABLE_FEATURES
+        unavailable = list(CE_UNAVAILABLE_FEATURES)
+        if internal_credentials_configured():
+            # The internal-API adapter makes project pages readable despite the
+            # missing public API — do not report them as unavailable.
+            unavailable = [f for f in unavailable if not f.startswith("pages")]
+            info["available_via_internal_adapter"] = (
+                "pages (project pages, read-only: list_pages/retrieve_page with a "
+                "project_id WORK on this instance; private pages stay owner-only)"
+            )
+        info["unavailable_features"] = unavailable
         info["note"] = (
             "Community Edition: the APIs listed in unavailable_features return 404 "
             "(missing endpoint). Lite list endpoints are also absent but fall back "
