@@ -1,0 +1,18 @@
+# TLS terminator for the Plane MCP Server.
+# MCP_PUBLIC_DOMAIN comes from deploy/.env via docker-compose.
+
+{$MCP_PUBLIC_DOMAIN} {
+	# Only the MCP endpoints are exposed publicly; everything else 404s.
+	handle /http/api-key/mcp* {
+		reverse_proxy plane-mcp:8211
+	}
+	handle /http/mcp* {
+		reverse_proxy plane-mcp:8211
+	}
+	handle /.well-known/* {
+		reverse_proxy plane-mcp:8211
+	}
+	handle {
+		respond 404
+	}
+}

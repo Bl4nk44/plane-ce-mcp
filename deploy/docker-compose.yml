@@ -1,0 +1,48 @@
+# Deployment: Plane MCP Server behind a Caddy TLS terminator.
+#
+# Usage:
+#   cd deploy
+#   cp .env.deploy.example .env   # fill in values
+#   docker compose up -d --build
+#
+# Public URL (after DNS points MCP_PUBLIC_DOMAIN at this host):
+#   https://$MCP_PUBLIC_DOMAIN/http/api-key/mcp   (PAT header auth)
+# Caddy obtains and renews the Let's Encrypt certificate automatically.
+
+services:
+  plane-mcp:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env
+    expose:
+      - "8211"
+    healthcheck:
+      # Any HTTP response counts as alive (endpoint returns 401 without auth).
+      test: ["CMD-SHELL", "curl -s -o /dev/null http://localhost:8211/http/api-key/mcp || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      plane-mcp:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - MCP_PUBLIC_DOMAIN=${MCP_PUBLIC_DOMAIN:?set MCP_PUBLIC_DOMAIN in deploy/.env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:

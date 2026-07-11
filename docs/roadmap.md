@@ -116,6 +116,10 @@ Perplexity gets a public HTTPS endpoint with Bearer/OAuth.
 
 - [ ] E13.1 — HTTPS in front of the MCP container: Caddy or Nginx TLS terminator in
       compose, public URL e.g. `https://plane-mcp.<domain>/mcp`.
+      (2026-07-12: `deploy/` ready — docker-compose.yml [mcp + caddy, healthcheck],
+      Caddyfile [auto-TLS, only MCP routes exposed], `.env.deploy.example` with
+      `MCP_PUBLIC_DOMAIN`. Remaining: pick the domain, point DNS at the host,
+      `docker compose up -d --build`, then live TLS check.)
 - [ ] E13.2 — Auth for Perplexity Remote Connector — decide and implement ONE:
       (a) reuse existing OAuth provider (check Perplexity redirect URI, add to
       `PLANE_OAUTH_ALLOWED_REDIRECT_URIS`), or
