@@ -223,7 +223,7 @@ def test_fallback_failure_reports_both_errors():
         projects = BrokenGroup()
 
     client = wrap_client(BrokenClient())
-    with pytest.raises(ToolError, match="fallback to the full endpoint also failed"):
+    with pytest.raises(ToolError, match="The fallback also failed"):
         client.projects.list_lite(workspace_slug="ws")
 
 

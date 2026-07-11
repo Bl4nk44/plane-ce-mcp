@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import functools
 import logging
+import os
 from collections.abc import Callable
 from enum import Enum
 from typing import Any
@@ -25,9 +26,12 @@ from fastmcp.exceptions import ToolError
 from plane.errors import HttpError, PlaneError
 from plane.models.cycles import PaginatedCycleLiteResponse
 from plane.models.modules import PaginatedModuleLiteResponse
+from plane.models.pages import Page, PaginatedPageResponse
 from plane.models.projects import PaginatedProjectLiteResponse, PaginatedProjectMemberResponse
 from plane.models.query_params import PaginatedQueryParams
 from plane.models.workspaces import PaginatedWorkspaceMemberResponse
+
+from plane_mcp.internal_api import get_internal_client
 
 logger = logging.getLogger("fastmcp.plane_mcp.compat")
 
@@ -164,6 +168,25 @@ def _fb_workspace_members_lite(group: Any, workspace_slug: str, params: Any = No
     return _synthesize_envelope(PaginatedWorkspaceMemberResponse, members)
 
 
+def _plane_base_url() -> str:
+    return os.getenv("PLANE_INTERNAL_BASE_URL") or os.getenv("PLANE_BASE_URL", "https://api.plane.so")
+
+
+def _fb_pages_list_project(group: Any, workspace_slug: str, project_id: str, params: Any = None, **kw: Any) -> Any:
+    # CE has no public Pages API — go through the internal session-auth adapter
+    # (read-only; requires PLANE_INTERNAL_API_EMAIL/PASSWORD, see internal_api.py).
+    internal = get_internal_client(_plane_base_url())
+    pages = internal.list_project_pages(workspace_slug, project_id)
+    return _synthesize_envelope(PaginatedPageResponse, pages)
+
+
+def _fb_pages_retrieve_project(
+    group: Any, workspace_slug: str, project_id: str, page_id: str, params: Any = None, **kw: Any
+) -> Any:
+    internal = get_internal_client(_plane_base_url())
+    return Page.model_validate(internal.retrieve_project_page(workspace_slug, project_id, page_id))
+
+
 # Keyed by the proxy operation path; each handler receives the *unwrapped* SDK
 # api group followed by the original call arguments.
 FALLBACKS: dict[str, Callable[..., Any]] = {
@@ -172,7 +195,28 @@ FALLBACKS: dict[str, Callable[..., Any]] = {
     "modules.list_lite": _fb_modules_list_lite,
     "projects.get_members_lite": _fb_project_members_lite,
     "workspaces.get_members_lite": _fb_workspace_members_lite,
+    "pages.list_project_pages": _fb_pages_list_project,
+    "pages.retrieve_project_page": _fb_pages_retrieve_project,
 }
+
+
+def _run_fallback(
+    fallback: Callable[..., Any], group: Any, operation: str, original: HttpError, args: Any, kwargs: Any
+) -> Any:
+    logger.warning(
+        "Plane API call %s not available on this instance (HTTP 404) - falling back",
+        operation,
+    )
+    try:
+        return fallback(group, *args, **kwargs)
+    except ToolError:
+        raise
+    except HttpError as fe:
+        raise ToolError(
+            f"{describe_http_error(operation, original)} The fallback also failed: {describe_http_error(operation, fe)}"
+        ) from fe
+    except Exception as fe:  # noqa: BLE001 - any fallback failure must surface cleanly
+        raise ToolError(f"{describe_http_error(operation, original)} The fallback also failed: {fe}") from fe
 
 
 def _wrap_callable(func: Any, operation: str, group: Any) -> Any:
@@ -186,18 +230,7 @@ def _wrap_callable(func: Any, operation: str, group: Any) -> Any:
             if classify_http_error(e) is PlaneErrorKind.MISSING_ENDPOINT:
                 fallback = FALLBACKS.get(operation)
                 if fallback is not None:
-                    logger.warning(
-                        "Plane API call %s not available on this instance (HTTP 404) - "
-                        "falling back to the full endpoint",
-                        operation,
-                    )
-                    try:
-                        return fallback(group, *args, **kwargs)
-                    except HttpError as fe:
-                        raise ToolError(
-                            f"{describe_http_error(operation, e)} The fallback to the full "
-                            f"endpoint also failed: {describe_http_error(operation, fe)}"
-                        ) from fe
+                    return _run_fallback(fallback, group, operation, e, args, kwargs)
                 logger.warning("Plane API call %s hit a missing endpoint (HTTP 404): %s", operation, e)
             raise ToolError(describe_http_error(operation, e)) from e
         except httpx.TimeoutException as e:
