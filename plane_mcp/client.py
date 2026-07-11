@@ -8,11 +8,18 @@ from fastmcp.server.dependencies import get_access_token
 from fastmcp.utilities.logging import get_logger
 from plane import PlaneClient
 
+from plane_mcp.compat import wrap_client
+
 logger = get_logger(__name__)
 
 
 class PlaneClientContext(NamedTuple):
-    """Context containing Plane client and workspace information."""
+    """Context containing Plane client and workspace information.
+
+    ``client`` is the SDK client wrapped in the compatibility proxy
+    (plane_mcp.compat): SDK errors surface as actionable ToolErrors,
+    never raw exceptions. It is attribute/call compatible with PlaneClient.
+    """
 
     client: PlaneClient
     workspace_slug: str
@@ -69,6 +76,6 @@ def get_plane_client_context() -> PlaneClientContext:
         )
 
     return PlaneClientContext(
-        client=client,
+        client=wrap_client(client),
         workspace_slug=workspace_slug,
     )
