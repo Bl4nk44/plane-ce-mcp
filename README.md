@@ -2,6 +2,20 @@
 
 A Model Context Protocol (MCP) server for Plane integration. This server provides tools and resources for interacting with Plane through AI agents.
 
+> **Fork note — self-host stabilized.** This fork of
+> [makeplane/plane-mcp-server](https://github.com/makeplane/plane-mcp-server) targets
+> **self-hosted Plane (Community Edition, Docker)** while staying Cloud-compatible:
+>
+> * Central compatibility layer (`plane_mcp/compat.py`): every Plane API error becomes
+>   an actionable message (missing endpoint vs missing resource vs auth vs timeout) —
+>   no raw SDK exceptions reach the MCP client.
+> * Lite endpoints absent on CE transparently fall back to the full endpoints
+>   (projects, cycles, modules, project/workspace members).
+> * HTTP mode runs without OAuth configuration — PAT header auth alone
+>   (`/http/api-key/mcp`).
+> * CE vs Cloud API differences are catalogued in
+>   [docs/plane-api-compat.md](docs/plane-api-compat.md).
+
 ## Features
 
 * 🔧 **Plane Integration**: Interact with Plane APIs and services

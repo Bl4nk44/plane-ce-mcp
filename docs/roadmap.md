@@ -20,7 +20,7 @@ checklist; keep it updated as work lands.
 
 ## Stage 3 — Local environment & CI
 - [x] CI workflow: ruff check + format + unit tests on PR/push (`.github/workflows/ci.yml`).
-- [ ] Runtime `.env.example` (currently only `.env.test` exists).
+- [x] Runtime `.env.example` (currently only `.env.test` exists). (2026-07-11)
 - [ ] Rule: no merge without green CI.
 - [ ] Optional: integration test job gated by repo secrets pointing at a test Plane instance.
 
@@ -64,7 +64,7 @@ checklist; keep it updated as work lands.
 
 ## Stage 10 — Documentation
 - [x] `docs/` skeleton (this file, plane-api-compat, self-host-testing).
-- [ ] README note: fork stabilized for self-host.
+- [x] README note: fork stabilized for self-host. (2026-07-11)
 - [ ] Upstream issues/PRs for fixes that are generally useful.
 
 ## Stage 11 — Upstream sync & maintenance

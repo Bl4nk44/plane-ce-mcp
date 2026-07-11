@@ -27,6 +27,7 @@ Verified 2026-07-11 against local self-host **Plane CE v1.3.1** (`edition: PLANE
 | 5 | Estimates API missing | `.../projects/{p}/estimates/` | CE 1.3.1 | **CONFIRMED 404** |
 | 6 | Features/capability endpoint missing | `/api/v1/workspaces/{ws}/features/` | CE 1.3.1 | **CONFIRMED 404** — capability detection cannot rely on a features endpoint; probe target endpoints directly |
 | 7 | Lite endpoints missing (SDK `list_lite`/`get_members_lite`) | `/projects-lite/`, `/cycles-lite/`, `/modules-lite/`, `/project-members-lite/`, `/members-lite/` | CE 1.3.1 | **CONFIRMED 404, HANDLED** — compat layer (`plane_mcp/compat.py` `FALLBACKS`) transparently falls back to the full endpoints and re-shapes the response into the lite models; fallback logged at WARNING |
+| 8 | Milestones API missing | `.../projects/{p}/milestones/` (`milestones.create` 404) | CE 1.3.1 | **CONFIRMED 404** — EE/Cloud feature; integration test skips the milestone flow on CE |
 
 Verified working on CE 1.3.1 (200): `projects`, `work-items`, legacy `issues`, `states`,
 `labels`, `cycles`, `modules`, `intake-issues`, workspace `members`, project `members`.
