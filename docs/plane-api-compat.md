@@ -15,13 +15,23 @@ Plane version it applies to. Tools must consult this before assuming an endpoint
 
 ## Known differences / issues
 
-> Fill in as verified against the local instance. Format: symptom, affected endpoint,
-> Plane versions, workaround/fallback.
+Verified 2026-07-11 against local self-host **Plane CE v1.3.1** (`edition: PLANE_COMMUNITY`,
+`http://192.168.178.22:8800`, workspace `projekty`, PAT auth via `x-api-key`).
 
 | # | Symptom | Endpoint | Affects | Status |
 |---|---|---|---|---|
-| 1 | 404 on `/work-items/` paths | `/api/v1/workspaces/{ws}/projects/{p}/work-items/` | Older self-host releases expose legacy `/issues/` only | TO VERIFY on local instance |
-| 2 | Cloud-only features (initiatives, intake, some work-item-type ops) may be disabled in CE | various | CE feature flags | TO VERIFY — check `get_features` |
+| 1 | 404 on `/work-items/` paths | `/api/v1/workspaces/{ws}/projects/{p}/work-items/` | Older self-host releases | **NOT an issue on CE 1.3.1** — both `/work-items/` and legacy `/issues/` return 200 |
+| 2 | Pages API missing | `/api/v1/workspaces/{ws}/pages/` and `.../projects/{p}/pages/` | CE 1.3.1 | **CONFIRMED 404** (missing endpoint). Pages exist only in the internal web API (`/api/workspaces/...` → 401 with PAT, session-cookie auth only). Stage 12 blocked on public API — options: newer Plane release, or internal-API adapter (fragile, session auth) |
+| 3 | Work item types API missing | `.../projects/{p}/issue-types/` | CE 1.3.1 | **CONFIRMED 404** — EE/Cloud feature. `resolve_work_item_type` / Epic-by-type flows won't work on CE |
+| 4 | Initiatives API missing | `/api/v1/workspaces/{ws}/initiatives/` | CE 1.3.1 | **CONFIRMED 404** — EE/Cloud feature |
+| 5 | Estimates API missing | `.../projects/{p}/estimates/` | CE 1.3.1 | **CONFIRMED 404** |
+| 6 | Features/capability endpoint missing | `/api/v1/workspaces/{ws}/features/` | CE 1.3.1 | **CONFIRMED 404** — capability detection cannot rely on a features endpoint; probe target endpoints directly |
+
+Verified working on CE 1.3.1 (200): `projects`, `work-items`, legacy `issues`, `states`,
+`labels`, `cycles`, `modules`, `intake-issues`, workspace `members`, project `members`.
+
+Instance metadata (no auth): `GET /api/instances/` → `instance.current_version`,
+`instance.edition` — usable for capability profiling.
 
 ## Fallback strategy
 
@@ -32,12 +42,17 @@ Plane version it applies to. Tools must consult this before assuming an endpoint
 4. Fallbacks live in a shared compatibility layer (planned, Stage 5) — never inline in
    individual tools.
 
-Distinguishing "resource not found" from "endpoint not available": a missing endpoint
-typically 404s with an HTML or generic body; a missing resource returns the Plane JSON
-error shape. Verify and document the exact difference here once observed.
+Distinguishing "resource not found" from "endpoint not available" (verified on CE 1.3.1 —
+both are `404` + `application/json`, differ only in body text):
+
+- Missing **endpoint** (route not in this edition/version): `{"error": "Page not found."}`
+- Missing **resource** (route exists, id doesn't): `{"error":"The requested resource does not exist."}`
+
+The compatibility layer should match on the error message text to decide whether a
+fallback (legacy path) is worth attempting.
 
 ## Version matrix
 
-| Plane release (self-host) | work-items path | lite endpoints | Notes |
-|---|---|---|---|
-| (local instance version here) | ? | ? | |
+| Plane release (self-host) | work-items path | legacy `/issues/` | pages API | issue-types | initiatives | Notes |
+|---|---|---|---|---|---|---|
+| CE v1.3.1 (local, 2026-07-11) | ✅ 200 | ✅ 200 | ❌ 404 | ❌ 404 | ❌ 404 | Pages only via internal session-auth API |

@@ -9,8 +9,9 @@ checklist; keep it updated as work lands.
 - [x] Map repo structure (see CLAUDE.md Architecture).
 - [ ] List tools actually needed daily; mark which must be bulletproof
       (work item create/update/list, cycles, modules, states, labels).
-- [ ] Catalog known self-host breakages (404s, auth issues, broken tools) in
-      `docs/plane-api-compat.md`.
+- [x] Catalog known self-host breakages (404s, auth issues, broken tools) in
+      `docs/plane-api-compat.md` — verified against local CE v1.3.1 (2026-07-11):
+      pages/issue-types/initiatives/estimates APIs missing; core CRUD OK.
 
 ## Stage 2 — Claude Code harness
 - [x] Extend CLAUDE.md with fork mission, tool rules, prohibitions, upstream sync.
@@ -34,8 +35,10 @@ checklist; keep it updated as work lands.
 - [ ] Capability detection / env profile for self-host vs Cloud.
 
 ## Stage 6 — Auth & sessions
-- [ ] Primary mode: PAT via `x-api-key` + `x-workspace-slug` (and stdio env vars).
+- [x] Primary mode: PAT via `x-api-key` + `x-workspace-slug` (and stdio env vars).
       OAuth is secondary; do not depend on it for self-host workflows.
+      (2026-07-11: HTTP mode no longer requires OAuth env — without
+      `PLANE_OAUTH_PROVIDER_CLIENT_ID` it serves header-auth only at `/http/api-key/mcp`.)
 - [ ] Clear error reporting for invalid key / missing workspace / expired token.
 
 ## Stage 7 — Docker / deployment
@@ -67,9 +70,12 @@ Existing tools in `plane_mcp/tools/pages.py`: `list_pages`, `retrieve_page`,
 `create_page`, `list_work_item_pages`, `attach_page_to_work_item`,
 `detach_page_from_work_item`. Gap analysis below is against those.
 
-- [ ] E12.1 — Verify Pages endpoints on the local self-host instance
+- [x] E12.1 — Verify Pages endpoints on the local self-host instance
       (workspace pages, project pages, page detail); record availability and any
       version/feature gating in `docs/plane-api-compat.md`.
+      (2026-07-11: CE v1.3.1 has NO public Pages API — all `/api/v1/.../pages/`
+      paths 404; pages exist only behind the session-auth internal API. Stage 12
+      blocked until Plane ships the public API or we add an internal-API adapter.)
 - [ ] E12.2 — Verify existing tools (`list_pages`, `retrieve_page`,
       `list_work_item_pages`) against self-host; fix what 404s.
 - [ ] E12.3 — Add content truncation to `retrieve_page`: `max_length` param
