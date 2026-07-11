@@ -142,12 +142,16 @@ Perplexity gets a public HTTPS endpoint with Bearer/OAuth.
       `get_readonly_header_mcp()`; only this path is exposed through Tailscale
       Funnel on :8443, verified from the public internet. `resolve_*` excluded —
       it creates work item types.)
-- [ ] E13.5 — Add Custom Remote Connector in Perplexity (Settings → Connectors),
-      verify end-to-end: question in Perplexity → data from Plane
-      (`list_pages`, `retrieve_page`, `list_work_items`).
-- [ ] E13.6 — Document: `docs/auth.md` (token strategy, TTL) and
-      `docs/perplexity-integration.md` (URL schema, env vars, connector setup);
-      README section "Perplexity integration".
+- [x] E13.5 — Add Custom Remote Connector in Perplexity (Settings → Connectors),
+      verify end-to-end: question in Perplexity → data from Plane.
+      (2026-07-12: connector live — auth "API Key" [PAT as bearer, no custom
+      headers possible → server falls back to PLANE_WORKSPACE_SLUG, commit
+      4d3419e]. Perplexity correctly reads projects/work items and reports CE
+      limitations via get_instance_info. Pages pending the internal-API
+      account on the server.)
+- [x] E13.6 — Document: `docs/perplexity-integration.md` (connector settings,
+      auth model, read-only surface). (2026-07-12; separate auth.md not needed —
+      PAT bearer + workspace fallback documented there and in tailscale doc.)
 - [ ] E13.7 — New env vars in `.env.example`:
       `MCP_PUBLIC_BASE_URL`, `MCP_OAUTH_CLIENT_ID`, `MCP_OAUTH_CLIENT_SECRET`,
       `MCP_OAUTH_TOKEN_TTL`, `PLANE_PAGES_MAX_CONTENT_LENGTH`.
