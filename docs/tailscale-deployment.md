@@ -25,9 +25,16 @@ https://<machine>.<tailnet>.ts.net/http/api-key/mcp
 
 Headers: `Authorization: Bearer <PAT>` (or `x-api-key`) + `x-workspace-slug`.
 
-Verified 2026-07-12: `https://win-11.tail85e545.ts.net/http/api-key/mcp` —
-full MCP session (140 tools listed, `get_instance_info`, `list_projects`)
-through tailnet TLS.
+**Production endpoint (2026-07-12):** the server runs on the always-on home
+server (`ubuntu`, same host as Plane):
+
+```
+https://ubuntu.tail85e545.ts.net/http/api-key/mcp
+```
+
+Verified with a full MCP session (140 tools listed, `get_instance_info`,
+`list_projects`) through tailnet TLS. The earlier desktop instance
+(`win-11`) has been switched off (`tailscale serve --https=443 off`).
 
 ### WSL caveat (MagicDNS)
 
@@ -54,10 +61,11 @@ header auth is still required, but the public endpoint must not expose
 mutating tools to external agents. Funnel requires enabling it in the
 tailnet's ACL policy (`"funnel"` node attribute) the first time.
 
-## Target install (Plane host, always-on)
+## Install on the Plane host (done 2026-07-12)
 
-The desktop (`win-11`) proves the setup; the durable home is the server that
-runs Plane (same host → `PLANE_BASE_URL=http://localhost:8800`, no LAN hop):
+Runs on the server that hosts Plane (same host → `PLANE_BASE_URL=http://localhost:8800`,
+no LAN hop). The Dockerfile's entrypoint is `python -m plane_mcp`, so the
+command is just `http`:
 
 ```bash
 git clone https://github.com/Bl4nk44/plane-mcp-server && cd plane-mcp-server
@@ -65,9 +73,16 @@ docker build -t plane-mcp .
 docker run -d --name plane-mcp --restart unless-stopped \
   --network host \
   -e PLANE_BASE_URL=http://localhost:8800 \
-  plane-mcp python -m plane_mcp http
-sudo tailscale serve --bg http://localhost:8211
+  plane-mcp http
+sudo tailscale set --operator=$USER   # once; afterwards tailscale needs no sudo
+tailscale serve --bg http://localhost:8211
 ```
 
-Then update MCP client configs to `https://<plane-host>.<tailnet>.ts.net/http/api-key/mcp`
-and stop the desktop instance (`tailscale serve --https=443 off` on win-11).
+Upgrade procedure:
+
+```bash
+cd ~/plane-mcp-server && git pull --ff-only && docker build -t plane-mcp . \
+  && docker rm -f plane-mcp \
+  && docker run -d --name plane-mcp --restart unless-stopped --network host \
+       -e PLANE_BASE_URL=http://localhost:8800 plane-mcp http
+```

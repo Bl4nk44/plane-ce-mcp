@@ -58,7 +58,15 @@ checklist; keep it updated as work lands.
 
 ## Stage 7 — Docker / deployment
 - [ ] Image tagging convention (dev/prod), compose service definition, healthcheck.
-- [ ] Rollout/rollback procedure documented.
+      (partial 2026-07-12: compose+healthcheck in `deploy/` [Caddy variant];
+      production runs as a plain `docker run --network host --restart
+      unless-stopped` container on the Plane host behind Tailscale Serve.)
+- [x] Rollout/rollback procedure documented. (2026-07-12: upgrade procedure in
+      `docs/tailscale-deployment.md`; rollback = rebuild from previous git tag.)
+
+**Production (2026-07-12):** container `plane-mcp` on the Plane host
+(`192.168.178.22`, tailnet node `ubuntu`), endpoint
+`https://ubuntu.tail85e545.ts.net/http/api-key/mcp` via Tailscale Serve.
 
 ## Stage 8 — Tool refactoring
 - [ ] Unified error handling / logging / retry style across tool modules.
