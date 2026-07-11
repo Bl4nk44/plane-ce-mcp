@@ -21,13 +21,15 @@ def register_page_tools(mcp: FastMCP) -> None:
         List pages.
 
         Lists a project's pages if project_id is given, otherwise workspace-level pages.
+        The list contains metadata only — description_html is null here by design;
+        fetch a page's content with retrieve_page.
 
         Args:
             project_id: UUID of the project. Omit to list workspace pages.
             params: Optional query parameters as a dictionary (e.g., per_page, cursor)
 
         Returns:
-            List of Page objects
+            List of Page objects (metadata only, no page content)
         """
         client, workspace_slug = get_plane_client_context()
         if project_id is not None:
