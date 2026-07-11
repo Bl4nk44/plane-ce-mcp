@@ -4,6 +4,7 @@ from fastmcp import FastMCP
 
 from plane_mcp.tools.cycles import register_cycle_tools
 from plane_mcp.tools.initiatives import register_initiative_tools
+from plane_mcp.tools.instance import register_instance_tools
 from plane_mcp.tools.intake import register_intake_tools
 from plane_mcp.tools.labels import register_label_tools
 from plane_mcp.tools.milestones import register_milestone_tools
@@ -52,3 +53,4 @@ def register_tools(mcp: FastMCP) -> None:
     register_milestone_tools(mcp)
     register_role_tools(mcp)
     register_pql_tools(mcp)
+    register_instance_tools(mcp)

@@ -243,6 +243,93 @@ def test_resource_404_does_not_trigger_fallback():
         client.projects.list_lite(workspace_slug="ws")
 
 
+# --- instance capability detection ----------------------------------------------
+
+
+class FakeResponse:
+    def __init__(self, payload: dict, status_code: int = 200):
+        self._payload = payload
+        self.status_code = status_code
+
+    def raise_for_status(self):
+        if self.status_code >= 400:
+            raise httpx.HTTPStatusError("error", request=None, response=None)
+
+    def json(self):
+        return self._payload
+
+
+def test_fetch_instance_profile_ce(monkeypatch):
+    import plane_mcp.compat as compat
+
+    compat._profile_cache.clear()
+    monkeypatch.setattr(
+        compat.httpx,
+        "get",
+        lambda url, timeout: FakeResponse({"instance": {"edition": "PLANE_COMMUNITY", "current_version": "1.3.1"}}),
+    )
+    profile = compat.fetch_instance_profile("http://plane.local:8800")
+    assert profile == {"edition": "PLANE_COMMUNITY", "version": "1.3.1"}
+
+
+def test_fetch_instance_profile_unreachable_returns_nones(monkeypatch):
+    import plane_mcp.compat as compat
+
+    compat._profile_cache.clear()
+
+    def boom(url, timeout):
+        raise httpx.ConnectError("unreachable")
+
+    monkeypatch.setattr(compat.httpx, "get", boom)
+    profile = compat.fetch_instance_profile("http://nope.invalid")
+    assert profile == {"edition": None, "version": None}
+
+
+def test_fetch_instance_profile_is_cached(monkeypatch):
+    import plane_mcp.compat as compat
+
+    compat._profile_cache.clear()
+    calls = {"n": 0}
+
+    def counting_get(url, timeout):
+        calls["n"] += 1
+        return FakeResponse({"instance": {"edition": "PLANE_COMMUNITY", "current_version": "1.3.1"}})
+
+    monkeypatch.setattr(compat.httpx, "get", counting_get)
+    compat.fetch_instance_profile("http://plane.local:8800")
+    compat.fetch_instance_profile("http://plane.local:8800")
+    assert calls["n"] == 1
+
+
+def test_describe_instance_lists_ce_limitations(monkeypatch):
+    import plane_mcp.compat as compat
+
+    compat._profile_cache.clear()
+    monkeypatch.setattr(
+        compat.httpx,
+        "get",
+        lambda url, timeout: FakeResponse({"instance": {"edition": "PLANE_COMMUNITY", "current_version": "1.3.1"}}),
+    )
+    info = compat.describe_instance("http://plane.local:8800")
+    assert info["edition"] == "PLANE_COMMUNITY"
+    assert any("pages" in f for f in info["unavailable_features"])
+    assert info["compat_reference"] == "docs/plane-api-compat.md"
+
+
+def test_describe_instance_cloud_has_no_limitations_list(monkeypatch):
+    import plane_mcp.compat as compat
+
+    compat._profile_cache.clear()
+
+    def boom(url, timeout):
+        raise httpx.ConnectError("cloud does not expose /api/instances/")
+
+    monkeypatch.setattr(compat.httpx, "get", boom)
+    info = compat.describe_instance("https://api.plane.so")
+    assert info["edition"] is None
+    assert "unavailable_features" not in info
+
+
 # --- end-to-end: ToolError message reaches the MCP client ----------------------
 
 

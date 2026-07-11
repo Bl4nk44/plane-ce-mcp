@@ -236,3 +236,69 @@ class CompatClientProxy:
 def wrap_client(client: Any) -> CompatClientProxy:
     """Wrap a PlaneClient so all SDK errors become actionable ToolErrors."""
     return CompatClientProxy(client)
+
+
+# --- instance capability detection ----------------------------------------------
+#
+# GET /api/instances/ is unauthenticated and works on self-host CE (verified on
+# v1.3.1); it exposes instance.current_version and instance.edition. There is no
+# /features/ capability endpoint on CE, so this is the only up-front signal for
+# self-host vs Cloud profiling. Errors never propagate — the profile is a hint,
+# not a dependency; endpoint 404s are still handled reactively by the proxy.
+
+# API families verified missing on Community Edition v1.3.1 (docs/plane-api-compat.md).
+# Lite endpoints are excluded: they are missing too but handled by FALLBACKS.
+CE_UNAVAILABLE_FEATURES = [
+    "pages (public API; internal session-auth API only)",
+    "work item types / epics (issue-types)",
+    "initiatives",
+    "estimates",
+    "milestones",
+    "workspace features endpoint",
+]
+
+_profile_cache: dict[str, dict[str, Any]] = {}
+
+
+def fetch_instance_profile(base_url: str) -> dict[str, Any]:
+    """Fetch edition/version info for a Plane instance (cached per base_url).
+
+    Returns {"edition": ..., "version": ...}; values are None when the endpoint
+    is unreachable or malformed (e.g. Plane Cloud does not expose it publicly).
+    """
+    cached = _profile_cache.get(base_url)
+    if cached is not None:
+        return cached
+
+    profile: dict[str, Any] = {"edition": None, "version": None}
+    try:
+        response = httpx.get(f"{base_url.rstrip('/')}/api/instances/", timeout=5)
+        response.raise_for_status()
+        instance = response.json().get("instance") or {}
+        profile["edition"] = instance.get("edition")
+        profile["version"] = instance.get("current_version")
+    except Exception as exc:  # noqa: BLE001 - profile is best-effort by design
+        logger.info("Could not fetch instance profile from %s: %s", base_url, exc)
+
+    _profile_cache[base_url] = profile
+    return profile
+
+
+def describe_instance(base_url: str) -> dict[str, Any]:
+    """Instance profile plus known API limitations, for diagnostics tools."""
+    profile = fetch_instance_profile(base_url)
+    edition = profile["edition"]
+    info: dict[str, Any] = {
+        "base_url": base_url,
+        "edition": edition,
+        "version": profile["version"],
+        "compat_reference": COMPAT_DOC,
+    }
+    if edition == "PLANE_COMMUNITY":
+        info["unavailable_features"] = CE_UNAVAILABLE_FEATURES
+        info["note"] = (
+            "Community Edition: the APIs listed in unavailable_features return 404 "
+            "(missing endpoint). Lite list endpoints are also absent but fall back "
+            "to the full endpoints automatically."
+        )
+    return info
