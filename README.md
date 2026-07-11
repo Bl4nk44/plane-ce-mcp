@@ -372,6 +372,12 @@ The server provides comprehensive tools for interacting with Plane. All tools us
 |-----------|-------------|
 | `get_me` | Get current authenticated user information |
 
+### Instance
+
+| Tool Name | Description |
+|-----------|-------------|
+| `get_instance_info` | Get edition/version of the connected Plane instance and its known API limitations (e.g. Community Edition) |
+
 **Total Tools**: 100+ tools across 20 categories
 
 ## Development

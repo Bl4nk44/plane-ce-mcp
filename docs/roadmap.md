@@ -7,8 +7,12 @@ checklist; keep it updated as work lands.
 ## Stage 1 — Project & requirements audit
 - [x] Identify stack: Python 3.10+, FastMCP 3.2.0, plane-sdk 0.2.19, uv, Docker.
 - [x] Map repo structure (see CLAUDE.md Architecture).
-- [ ] List tools actually needed daily; mark which must be bulletproof
-      (work item create/update/list, cycles, modules, states, labels).
+- [x] List tools actually needed daily; mark which must be bulletproof.
+      (2026-07-12, per user: basic read/write/edit — daily information capture and
+      retrieval. Bulletproof tier: work items create/list/retrieve/update,
+      projects list/retrieve, comments, states, labels. Second tier: cycles,
+      modules, members. Pages would fit the "information storage" use case but
+      are blocked on CE — see Stage 12.)
 - [x] Catalog known self-host breakages (404s, auth issues, broken tools) in
       `docs/plane-api-compat.md` — verified against local CE v1.3.1 (2026-07-11):
       pages/issue-types/initiatives/estimates APIs missing; core CRUD OK.
@@ -39,9 +43,11 @@ checklist; keep it updated as work lands.
       back to full endpoints with response re-shaping; WARNING logged. Verified live:
       list_projects, list_cycles, list_modules, get_project_members,
       get_workspace_members all work on CE.)
-- [ ] Capability detection / env profile for self-host vs Cloud
-      (`GET /api/instances/` → version + edition; needed once behavior must branch
-      up-front rather than react to 404s).
+- [x] Capability detection / env profile for self-host vs Cloud.
+      (2026-07-12: `fetch_instance_profile()`/`describe_instance()` in compat.py —
+      unauthenticated `GET /api/instances/`, cached; new `get_instance_info` tool
+      reports edition/version + known CE limitations so agents learn gaps up-front
+      instead of via 404s. Verified live on CE 1.3.1.)
 
 ## Stage 6 — Auth & sessions
 - [x] Primary mode: PAT via `x-api-key` + `x-workspace-slug` (and stdio env vars).
