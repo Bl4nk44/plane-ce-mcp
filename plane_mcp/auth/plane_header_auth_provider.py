@@ -47,9 +47,15 @@ class PlaneHeaderAuthProvider(TokenVerifier):
             headers = get_http_headers()
 
             if token:
-                workspace_slug = headers.get("x-workspace-slug")
+                # Clients that cannot send custom headers (e.g. Perplexity
+                # connectors send only the API key) fall back to the
+                # server-configured default workspace.
+                workspace_slug = headers.get("x-workspace-slug") or os.getenv("PLANE_WORKSPACE_SLUG")
                 if not workspace_slug:
-                    logger.warning("x-api-key header found but x-workspace-slug is missing")
+                    logger.warning(
+                        "API key found but no workspace: x-workspace-slug header missing "
+                        "and PLANE_WORKSPACE_SLUG env not set"
+                    )
                     return None
 
                 if not await self._validate_api_key(token):
