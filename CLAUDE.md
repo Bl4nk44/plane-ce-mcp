@@ -97,11 +97,9 @@ This is a standalone, unofficial project (originally forked from `makeplane/plan
 1. Critical daily-use tools work against self-host: work items (create/update/list), projects, cycles, modules, states, labels.
 2. Consistent error handling and diagnosability (404/401 must produce actionable messages, not stack traces).
 3. Self-host vs Cloud differences documented and handled (see `docs/plane-api-compat.md`).
-4. Pages/Docs tools solid + public read-only HTTPS endpoint for external agents
-   (Perplexity) - see roadmap stages 12-13.
+4. Pages/Docs tools solid + public read-only HTTPS endpoint for external agents (Perplexity).
 5. Nice-to-haves (stats, reports, extra tools) come after the above.
 
-The full staged plan lives in `docs/roadmap.md`. Manual verification checklist: `docs/self-host-testing.md`.
 
 ## Rules for New or Modified Tools
 
@@ -116,7 +114,7 @@ The full staged plan lives in `docs/roadmap.md`. Manual verification checklist: 
 - Do NOT change or remove existing tool signatures/behavior without a fallback path for self-host - MCP clients depend on them.
 - Do NOT add dependencies without justification; pin exact versions for anything security-relevant.
 - Do NOT rely on Cloud-only endpoints or features without a capability check or documented fallback.
-- Do NOT merge tool changes that were not exercised against the local self-host Plane (checklist in `docs/self-host-testing.md`).
+- Do NOT merge tool changes that were not exercised against the local self-host Plane.
 ## Upstream Cherry-Picks
 
 - Remote `upstream` = `makeplane/plane-mcp-server`. Review upstream changes occasionally: `git fetch upstream && git log --oneline main..upstream/main`.
@@ -152,6 +150,4 @@ update stale entries with `update_memory` instead of duplicating.
 
 | File | Content |
 |---|---|
-| `docs/roadmap.md` | Staged plan (audit → harness → CI → compat → auth → docker → tools → tests → docs → upstream sync) |
 | `docs/plane-api-compat.md` | Self-host vs Cloud API differences, endpoint mapping, fallback strategy |
-| `docs/self-host-testing.md` | Manual test checklist run before merging tool changes |

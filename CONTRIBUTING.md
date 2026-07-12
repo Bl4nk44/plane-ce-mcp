@@ -34,10 +34,8 @@ PLANE_API_KEY=... PLANE_WORKSPACE_SLUG=... PLANE_BASE_URL=... python -m plane_mc
 ## Before submitting a PR
 
 1. `ruff format plane_mcp/` and `ruff check plane_mcp/` pass (line length 120).
-2. `pytest` passes. Integration tests need a live Plane instance - see
-   `.env.test` and [docs/self-host-testing.md](docs/self-host-testing.md).
-3. Tool changes were exercised against a self-hosted CE instance
-   (checklist: [docs/self-host-testing.md](docs/self-host-testing.md)).
+2. `pytest` passes. Integration tests need a live Plane instance - see `.env.test`.
+3. Tool changes were exercised against a self-hosted CE instance.
 4. Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/)
    (`feat(scope):`, `fix(scope):`, `docs:`, ...).
 5. Keep PRs small and focused - one logical change per PR.

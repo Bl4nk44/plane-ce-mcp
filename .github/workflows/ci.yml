@@ -45,6 +45,6 @@ jobs:
         run: uv pip install --system -e ".[dev]"
 
       # test_integration.py needs a live Plane instance (PLANE_TEST_* env vars);
-      # run it locally per docs/self-host-testing.md
+      # run it locally against a live self-host instance
       - name: Unit tests
         run: pytest tests/ --ignore=tests/test_integration.py -v
