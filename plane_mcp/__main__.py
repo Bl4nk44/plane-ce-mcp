@@ -222,9 +222,11 @@ def main() -> None:
 
         app = _build_http_app(prefix)
 
+        # MCP clients connect from arbitrary origins (IDEs, web clients);
+        # credentials are disabled, so a wildcard origin is safe here.
         app.add_middleware(
             CORSMiddleware,
-            allow_origins=["*"],
+            allow_origins=["*"],  # nosemgrep: python.fastapi.security.wildcard-cors.wildcard-cors
             allow_credentials=False,
             allow_methods=["*"],
             allow_headers=["*"],

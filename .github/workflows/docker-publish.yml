@@ -1,12 +1,25 @@
 name: Publish Docker image
 
 # Builds the server image and pushes it to GitHub Container Registry.
-# Triggered by a version tag (v*, e.g. the tag created by the PyPI release
-# workflow) or manually. Uses the built-in GITHUB_TOKEN - no extra secrets.
+#
+# Triggers:
+#  - workflow_call from "Publish to PyPI" (the normal release path - a tag
+#    created with GITHUB_TOKEN cannot trigger the tag-push event, so the PyPI
+#    workflow calls this one directly with the version)
+#  - push of a v* tag (manual tagging)
+#  - workflow_dispatch (re-run for an existing tag: run it on the tag ref)
+#
+# Uses the built-in GITHUB_TOKEN - no extra secrets.
 #
 #   docker pull ghcr.io/bl4nk44/plane-ce-mcp:latest
 
 on:
+  workflow_call:
+    inputs:
+      version:
+        description: "Release version to tag the image with (e.g. 1.1.0 or v1.1.0)"
+        required: true
+        type: string
   push:
     tags: ["v*"]
   workflow_dispatch: {}
@@ -20,6 +33,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Resolve version
+        id: ver
+        env:
+          INPUT_VERSION: ${{ inputs.version || '' }}
+        run: |
+          V="$INPUT_VERSION"
+          if [ -z "$V" ] && [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            V="${GITHUB_REF_NAME}"
+          fi
+          V="${V#v}"
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+          echo "Resolved image version: '${V:-<none - only :latest will be pushed>}'"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -37,10 +63,9 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+            type=semver,pattern={{version}},value=v${{ steps.ver.outputs.version }},enable=${{ steps.ver.outputs.version != '' }}
+            type=semver,pattern={{major}}.{{minor}},value=v${{ steps.ver.outputs.version }},enable=${{ steps.ver.outputs.version != '' }}
+            type=raw,value=latest
 
       - name: Build and push
         uses: docker/build-push-action@v6

@@ -33,10 +33,14 @@ class PlaneHeaderAuthProvider(TokenVerifier):
                     },
                 )
                 if response.status_code != 200:
+                    # Logs only the HTTP status, never the key itself.
+                    # nosemgrep
                     logger.warning("API key validation failed: %s", response.status_code)
                     return False
                 return True
         except httpx.RequestError as e:
+            # Transport error only - the exception carries no credential.
+            # nosemgrep
             logger.warning("API key validation request failed: %s", e)
             return False
 

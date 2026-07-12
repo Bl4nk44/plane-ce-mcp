@@ -5,7 +5,7 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
@@ -29,6 +29,10 @@ ENV FASTMCP_PORT=8211
 # Liveness probe against the unauthenticated /healthz route (http transport).
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
     CMD curl -fsS http://localhost:8211/healthz || exit 1
+
+# Run as a non-root user; the server only listens on 8211 and writes no files.
+RUN useradd --create-home --uid 1000 mcp
+USER mcp
 
 # Default to streamable-http transport, but allow override via command
 # Users can override by passing different transport as CMD

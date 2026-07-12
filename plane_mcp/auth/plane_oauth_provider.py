@@ -149,6 +149,8 @@ class PlaneOAuthTokenVerifier(TokenVerifier):
 
                 logger.info(f"Plane API response status: {response.status_code}")
                 if response.status_code != 200:
+                    # Logs the status and the API's error body, not the token.
+                    # nosemgrep
                     logger.info(
                         "Plane token verification failed: %s - %s",
                         response.status_code,

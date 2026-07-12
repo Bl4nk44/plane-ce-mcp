@@ -99,6 +99,8 @@ def build_token_store() -> Any:
         use_ssl = _redis_ssl_enabled(default=False)
         _ping_redis(redis_host, int(redis_port), password=password, ssl=use_ssl)
         store = RedisStore(host=redis_host, port=int(redis_port), password=password)
+        # Logs the auth *mode* and endpoint, never the password itself.
+        # nosemgrep
         logger.info(
             "Token store: Redis (auth=password, host=%s, port=%s, ssl=%s)",
             redis_host,
@@ -138,6 +140,8 @@ def build_token_store() -> Any:
             ssl=use_ssl,
         )
         store = RedisStore(client=async_client)
+        # Logs the auth *mode* and endpoint, never the fetched secret.
+        # nosemgrep
         logger.info(
             "Token store: Redis (auth=secrets-manager, host=%s, port=%s, ssl=%s, region=%s)",
             redis_host,
@@ -158,6 +162,8 @@ def build_token_store() -> Any:
     if redis_host and redis_port:
         _ping_redis(redis_host, int(redis_port))
         store = RedisStore(host=redis_host, port=int(redis_port))
+        # Logs the auth *mode* and endpoint; there is no credential here at all.
+        # nosemgrep
         logger.info("Token store: Redis (auth=none, host=%s, port=%s)", redis_host, redis_port)
         return store
 
