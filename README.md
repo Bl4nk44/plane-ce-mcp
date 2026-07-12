@@ -137,6 +137,8 @@ recipes (Docker Compose, Caddy, Tailscale) live in [deploy/](deploy/) and
 | `PLANE_INTERNAL_API_EMAIL` / `PLANE_INTERNAL_API_PASSWORD` | pages tools | Plane account used by the internal-API adapter (CE has no public pages API); the account needs membership in the relevant projects |
 | `PLANE_TOOLSETS` | optional (default: `all`) | Comma-separated tool groups to register: `core,comments,pages,types,planning,admin,pql` (or `all`). Loads fewer tool definitions into the client's context - e.g. `core` is the daily-driver set (~64 tools vs ~142). Call `list_toolsets` to see active/available groups. |
 | `PLANE_MAX_RESPONSE_KB` | optional (default: `1024`) | Size cap for `list_work_items` / `list_archived_work_items` responses. Over the limit the tool returns an actionable error instead of the payload, to protect the client's context window. `0` disables. |
+| `PLANE_MAX_RETRIES` | optional (default: `2`) | Retries after the first attempt for transient Plane API failures (429/503 for any call; 502/504/timeouts for read-only calls only, to avoid duplicate writes). `0` disables. |
+| `PLANE_RETRY_BASE_DELAY` | optional (default: `0.5`) | Base seconds for exponential backoff with jitter between retries (capped at 10s). |
 | `PLANE_PAGES_MAX_CONTENT_LENGTH` | optional | Default truncation for `retrieve_page` content |
 | `REDIS_HOST` / `REDIS_PORT` | http/sse (optional) | Token storage (falls back to in-memory) |
 | `PLANE_OAUTH_PROVIDER_*` | http/sse OAuth only | OAuth client credentials and base URL |

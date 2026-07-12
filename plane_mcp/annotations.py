@@ -63,6 +63,8 @@ def is_read_only(annotations: ToolAnnotations | None) -> bool:
 async def _apply(mcp: FastMCP) -> None:
     for tool in await mcp.list_tools(run_middleware=False):
         live = await mcp.get_tool(tool.name)
+        if live is None:
+            continue
         # Respect an annotation a tool set explicitly at definition time.
         if live.annotations is None:
             live.annotations = classify_annotations(tool.name)
