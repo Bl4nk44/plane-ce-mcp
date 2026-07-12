@@ -61,10 +61,10 @@ def app():
         routes=[Mount("/", app=oauth_app)],
     )
 
-    # Same CORS config as __main__.py
+    # Same CORS config as __main__.py (wildcard justified there)
     starlette_app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
+        allow_origins=["*"],  # nosemgrep: python.fastapi.security.wildcard-cors.wildcard-cors
         allow_credentials=False,
         allow_methods=["*"],
         allow_headers=["*"],

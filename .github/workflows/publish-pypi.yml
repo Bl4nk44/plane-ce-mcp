@@ -9,6 +9,8 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.package-version.outputs.current-version }}
 
     steps:
       - name: Checkout code
@@ -56,3 +58,15 @@ jobs:
           draft: false
           prerelease: false
           generate_release_notes: true
+
+  # The release tag above is created with GITHUB_TOKEN, which deliberately does
+  # not fire other workflows' tag-push triggers (GitHub anti-recursion). Call
+  # the Docker publish workflow directly so the image ships automatically.
+  docker:
+    needs: publish
+    uses: ./.github/workflows/docker-publish.yml
+    permissions:
+      contents: read
+      packages: write
+    with:
+      version: ${{ needs.publish.outputs.version }}

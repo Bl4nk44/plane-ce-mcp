@@ -1,0 +1,54 @@
+name: Security
+
+# SAST + vulnerability/misconfig/secret scanning, mirroring the security stack
+# used across our projects (semgrep, trivy; osv-scanner runs in ci.yml, secret
+# scanning on PRs is also covered by the GitGuardian app). Blocking: findings
+# fail the build.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 2 * * 0" # weekly, Sunday 02:00 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  semgrep:
+    name: Semgrep SAST
+    runs-on: ubuntu-latest
+    container:
+      image: semgrep/semgrep:latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Semgrep scan
+        run: >-
+          semgrep scan
+          --config p/python
+          --config p/security-audit
+          --config p/secrets
+          --exclude tests
+          --error
+          --metrics=off
+
+  trivy:
+    name: Trivy scan (vuln + misconfig + secrets)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Covers dependency CVEs (uv.lock), Dockerfile/compose misconfigurations
+      # and committed secrets in one pass.
+      - name: Trivy filesystem scan
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          scanners: vuln,misconfig,secret
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
