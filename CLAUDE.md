@@ -85,6 +85,7 @@ Integration tests in `tests/test_integration.py` use `FastMCP.Client` with `Stre
 | `PLANE_BASE_URL` | all (default: https://api.plane.so) | Plane API URL |
 | `PLANE_TOOLSETS` | all (optional, default: all) | Comma-separated tool groups to register (`core,comments,pages,types,planning,admin,pql` or `all`). Fewer tools = smaller client context. Registry in `tools/__init__.py`; annotations in `annotations.py` |
 | `PLANE_MAX_RESPONSE_KB` | all (optional, default: 1024) | Response-size cap for list tools (`response.py`); over the limit returns an actionable error instead of the payload. `0` disables |
+| `PLANE_MAX_RETRIES` / `PLANE_RETRY_BASE_DELAY` | all (optional, default: 2 / 0.5s) | Retry transient failures in the compat proxy (`retry.py`): 429/503 retried for any call, 502/504/timeouts for read-only ops only (write may have landed). Exponential backoff + jitter |
 | `PLANE_INTERNAL_BASE_URL` | http/sse (optional) | Internal URL for server-to-server calls |
 | `REDIS_HOST` / `REDIS_PORT` | http/sse (optional) | Token storage (falls back to in-memory) |
 | `PLANE_OAUTH_PROVIDER_*` | http/sse OAuth | OAuth client credentials and base URL |

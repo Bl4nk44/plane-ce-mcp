@@ -32,6 +32,7 @@ from plane.models.query_params import PaginatedQueryParams
 from plane.models.workspaces import PaginatedWorkspaceMemberResponse
 
 from plane_mcp.internal_api import get_internal_client, internal_credentials_configured
+from plane_mcp.retry import call_with_retries, is_read_only_operation
 
 logger = logging.getLogger("fastmcp.plane_mcp.compat")
 
@@ -220,10 +221,12 @@ def _run_fallback(
 
 
 def _wrap_callable(func: Any, operation: str, group: Any) -> Any:
+    read_only = is_read_only_operation(operation)
+
     @functools.wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
         try:
-            return func(*args, **kwargs)
+            return call_with_retries(lambda: func(*args, **kwargs), operation, read_only=read_only)
         except ToolError:
             raise
         except HttpError as e:

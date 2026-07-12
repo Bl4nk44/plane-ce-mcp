@@ -40,14 +40,21 @@ Gaps found:
 - **1.4 Response size limits.** Uniform truncation for list tools + `total_count`
   + hint to narrow with `fields`/`per_page`. Sensible default sparse fieldset.
 
-## Stage 2 - Reliability
+## Stage 2 - Reliability (done)
 
-- **2.1 Retry with backoff** (429, 502/503/504, timeout) in `_wrap_callable`.
-  Configurable httpx timeout.
-- **2.2 Integration CI.** Nightly job spinning up Plane CE via docker compose,
-  running full `test_integration.py`. Version matrix as new CE releases land.
-- **2.3 Tool unit tests** (in-memory FastMCP client + mocked SDK) + `pyright` in
-  CI + coverage gate.
+- **2.1 Retry with backoff** - DONE. `retry.py`: 429/503 retried for any call,
+  502/504/timeouts for read-only ops only (a write may have landed). Exponential
+  backoff + jitter. Env: `PLANE_MAX_RETRIES`, `PLANE_RETRY_BASE_DELAY`.
+- **2.2 Integration CI** - DONE. `nightly-integration.yml` runs the live suite
+  against a persistent self-host instance (secrets, self-skips when absent).
+  Booting a full Plane CE stack in Actions was rejected as too flaky/heavy.
+  TODO: version matrix as new CE releases land.
+- **2.3 Tool unit tests** - STARTED. In-memory FastMCP client + fake SDK pattern
+  (`tests/test_tools_work_items.py`). Coverage gate at 53% (`--cov-fail-under`).
+  TODO: extend the pattern to the remaining tool modules and raise the floor.
+- **2.4 Pyright in CI** - DONE (non-blocking). Baseline has ~27 plane-sdk
+  call-signature false positives; job runs `continue-on-error` until triaged.
+  New modules (retry/response/annotations) are pyright-clean.
 
 ## Stage 3 - Security / ops
 

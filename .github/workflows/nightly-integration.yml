@@ -1,0 +1,70 @@
+name: Nightly integration
+
+# Runs the live integration suite against a real self-hosted Plane instance to
+# catch Plane CE version drift - the main reason a working MCP server suddenly
+# stops working. Point the secrets at a persistent test instance (e.g. exposed
+# via Tailscale). The job self-skips when secrets are absent, so forks and PRs
+# without access never fail here.
+
+on:
+  schedule:
+    - cron: "0 3 * * *" # 03:00 UTC daily
+  workflow_dispatch: {}
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    env:
+      PLANE_BASE_URL: ${{ secrets.PLANE_TEST_BASE_URL }}
+      PLANE_TEST_API_KEY: ${{ secrets.PLANE_TEST_API_KEY }}
+      PLANE_TEST_WORKSPACE_SLUG: ${{ secrets.PLANE_TEST_WORKSPACE_SLUG }}
+      PLANE_TEST_MCP_URL: http://localhost:8211
+    steps:
+      - name: Check secrets are configured
+        id: guard
+        run: |
+          if [ -z "$PLANE_BASE_URL" ] || [ -z "$PLANE_TEST_API_KEY" ] || [ -z "$PLANE_TEST_WORKSPACE_SLUG" ]; then
+            echo "Integration secrets not set - skipping."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.guard.outputs.run == 'true'
+
+      - name: Set up Python
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        if: steps.guard.outputs.run == 'true'
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install dependencies
+        if: steps.guard.outputs.run == 'true'
+        run: uv pip install --system -e ".[dev]"
+
+      - name: Start MCP server (http, header auth)
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          python -m plane_mcp http &
+          echo $! > mcp.pid
+          for i in $(seq 1 30); do
+            if curl -sf "$PLANE_TEST_MCP_URL/http/api-key/mcp" -o /dev/null \
+               -H "Accept: text/event-stream" -H "x-api-key: $PLANE_TEST_API_KEY" \
+               -H "x-workspace-slug: $PLANE_TEST_WORKSPACE_SLUG"; then
+              echo "MCP server is up"; break
+            fi
+            sleep 1
+          done
+
+      - name: Run integration tests
+        if: steps.guard.outputs.run == 'true'
+        run: pytest tests/test_integration.py -v
+
+      - name: Stop MCP server
+        if: always() && steps.guard.outputs.run == 'true'
+        run: '[ -f mcp.pid ] && kill "$(cat mcp.pid)" || true'
