@@ -10,7 +10,7 @@ Perplexity → Account settings → Connectors → **+ Custom connector** → Re
 | Field | Value |
 |---|---|
 | MCP Server URL | `https://ubuntu.<tailnet>.ts.net:8443/http/api-key-readonly/mcp` |
-| Authentication | **API Key** — paste a Plane Personal Access Token |
+| Authentication | **API Key** - paste a Plane Personal Access Token |
 | Transport | Streamable HTTP |
 | Network access | Public |
 
@@ -19,7 +19,7 @@ auth mode, which this deployment does not use).
 
 ## How auth works
 
-Perplexity's "API Key" mode sends only the key itself (as a bearer token) —
+Perplexity's "API Key" mode sends only the key itself (as a bearer token) -
 there is no way to attach custom headers. The server therefore resolves the
 workspace from its own `PLANE_WORKSPACE_SLUG` environment variable when the
 `x-workspace-slug` header is absent (introduced for exactly this client).
@@ -31,7 +31,7 @@ workspace per request via the header.
 The public endpoint is the **read-only surface** (E13.4): 59 `list_*` /
 `retrieve_*` / `get_*` / `count_*` / `search_*` / `read_*` tools, zero
 mutating tools. A leaked PAT through this endpoint cannot create, update or
-delete anything in Plane — and the full endpoint is not reachable from the
+delete anything in Plane - and the full endpoint is not reachable from the
 public internet at all (only through the tailnet).
 
 On Community Edition, pages/epics/initiatives/estimates/milestones need the

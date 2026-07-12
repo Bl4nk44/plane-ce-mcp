@@ -1,6 +1,6 @@
 ---
 name: plane-tool-editor
-description: Use when adding, modifying, or removing MCP tools in plane_mcp/tools/ — enforces the tool pattern, error handling, self-host fallback rules, and registration steps for this repo.
+description: Use when adding, modifying, or removing MCP tools in plane_mcp/tools/ - enforces the tool pattern, error handling, self-host fallback rules, and registration steps for this repo.
 ---
 
 # Plane MCP Tool Editor
@@ -36,7 +36,7 @@ def tool_name(param: str, optional_param: str | None = None) -> SomePlaneModel:
 
 - Never let a raw SDK exception reach the MCP client. Catch API errors and raise/return
   a message naming the tool, resource, and endpoint.
-- 404: distinguish missing resource vs endpoint unavailable on this Plane version —
+- 404: distinguish missing resource vs endpoint unavailable on this Plane version -
   consult and update `docs/plane-api-compat.md`.
 - Endpoint version differences go in the shared compatibility layer (Stage 5 of
   `docs/roadmap.md`), never inline per-tool.
@@ -44,7 +44,7 @@ def tool_name(param: str, optional_param: str | None = None) -> SomePlaneModel:
 
 ## Changing an existing tool
 
-- Signature/behavior changes need a fallback path — MCP clients depend on current
+- Signature/behavior changes need a fallback path - MCP clients depend on current
   behavior (see CLAUDE.md Prohibitions).
 - Run `ruff format` + `ruff check` on touched files; run the manual checklist for the
   affected domain before merge.

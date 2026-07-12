@@ -101,7 +101,7 @@ def register_page_tools(mcp: FastMCP) -> None:
         List pages.
 
         Lists a project's pages if project_id is given, otherwise workspace-level pages.
-        The list contains metadata only — description_html is null here by design;
+        The list contains metadata only - description_html is null here by design;
         fetch a page's content with retrieve_page.
 
         Args:
@@ -242,7 +242,7 @@ def register_page_tools(mcp: FastMCP) -> None:
 
         Plane has no server-side page search API, so this filters the page list
         client-side. With search_content=true each candidate page's content is
-        fetched individually (capped at 30 pages) — slower but matches body text.
+        fetched individually (capped at 30 pages) - slower but matches body text.
 
         Args:
             query: Text to look for (case-insensitive substring).

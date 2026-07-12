@@ -135,7 +135,7 @@ class TestOAuthRedirectAttack:
         assert "attacker.com" not in location, f"VULNERABILITY: Attacker domain found in redirect! Location: {location}"
 
         # If the server responds with a redirect, it should be to the upstream
-        # Plane OAuth provider — with the *server's own* callback URI, not the attacker's
+        # Plane OAuth provider - with the *server's own* callback URI, not the attacker's
         if response.is_redirect:
             assert "localhost" in location, f"Redirect should go to upstream Plane OAuth (localhost), got: {location}"
             # The redirect_uri param in the upstream redirect must point to the
@@ -207,7 +207,7 @@ class TestOAuthRedirectAttack:
         With allow_credentials=False, browsers will not attach cookies or allow
         attacker JS to read the response from a cross-origin POST to /token.
         The combination of Access-Control-Allow-Origin: * with credentials:true
-        was the original vulnerability — now credentials is false.
+        was the original vulnerability - now credentials is false.
         """
         response = client.options(
             "/token",
@@ -220,7 +220,7 @@ class TestOAuthRedirectAttack:
 
         # Credentials must NOT be allowed
         assert response.headers.get("access-control-allow-credentials") != "true", (
-            "VULNERABILITY: CORS allows credentials — attacker JS can steal tokens cross-origin"
+            "VULNERABILITY: CORS allows credentials - attacker JS can steal tokens cross-origin"
         )
 
         # Wildcard origin is fine without credentials

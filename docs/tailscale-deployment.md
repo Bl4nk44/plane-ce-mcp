@@ -1,11 +1,11 @@
 # Tailscale deployment (chosen path for Stage 13)
 
 Decision (2026-07-12): the MCP endpoint is exposed through **Tailscale Serve**
-(private, tailnet-only) and — once the read-only tool surface exists (E13.4) —
+(private, tailnet-only) and - once the read-only tool surface exists (E13.4) -
 **Tailscale Funnel** for external agents (Perplexity). The Caddy stack in
 `deploy/` remains as a generic alternative for hosts without Tailscale.
 
-## Private endpoint (own devices) — working
+## Private endpoint (own devices) - working
 
 On the machine running the MCP server:
 
@@ -38,12 +38,12 @@ Tailnet traffic is WireGuard-encrypted end to end, so plain HTTP on 8211 is
 transport-secure inside the tailnet; the Funnel port carries real TLS. Only
 the read-only path is funneled (`tailscale funnel --bg --https=8443
 --set-path=/http/api-key-readonly http://localhost:8211/http/api-key-readonly`)
-— the full endpoint is not reachable from the internet (verified: other paths
+- the full endpoint is not reachable from the internet (verified: other paths
 404 at the Tailscale edge, port 443 closed publicly). Both endpoints verified
 with full MCP sessions; the read-only surface exposes 0 mutating tools.
 
 Note: `tailscale serve` on 443/10000 could not be used for the tailnet-TLS
-variant — 443 is taken by the existing Caddy container and the 10000 handler
+variant - 443 is taken by the existing Caddy container and the 10000 handler
 consistently failed TLS handshakes from WSL clients. Direct 8211 is simpler
 and equally protected inside the tailnet.
 
@@ -56,7 +56,7 @@ WSL even though the tailnet IPs are reachable (mirrored networking). Fix:
 echo "<tailnet-ip> <machine>.<tailnet>.ts.net" | sudo tee -a /etc/hosts
 ```
 
-## Public endpoint for Perplexity (Funnel) — enable later
+## Public endpoint for Perplexity (Funnel) - enable later
 
 Same node, one command:
 

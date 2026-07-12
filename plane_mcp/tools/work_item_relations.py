@@ -2,9 +2,9 @@
 
 Consolidates the two relation systems behind one set of tools:
 
-- Built-in dependencies — six fixed directional types (blocking, blocked_by,
+- Built-in dependencies - six fixed directional types (blocking, blocked_by,
   start_before, start_after, finish_before, finish_after).
-- Custom relations — workspace-defined types created via
+- Custom relations - workspace-defined types created via
   list/create_work_item_relation_definition, each with an outward/inward label.
 
 create_work_item_relation routes between them by which argument is supplied.
@@ -135,7 +135,7 @@ def register_work_item_relation_tools(mcp: FastMCP) -> None:
     ) -> None:
         """Remove ONE relation between two work items.
 
-        A built-in dependency and a custom relation are removed independently —
+        A built-in dependency and a custom relation are removed independently -
         removing one leaves the other intact. Set is_dependency from the relation
         the user named (see list_work_item_relations): True for a built-in
         dependency (blocking, blocked_by, start/finish ordering), False for a

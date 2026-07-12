@@ -88,10 +88,10 @@ def build_token_store() -> Any:
     # 1. Static-password Redis
     if password:
         if not (redis_host and redis_port):
-            raise RuntimeError("REDIS_PASSWORD is set but REDIS_HOST/REDIS_PORT are not — set both to use Redis.")
+            raise RuntimeError("REDIS_PASSWORD is set but REDIS_HOST/REDIS_PORT are not - set both to use Redis.")
         if secret_arn:
             logger.warning(
-                "Both REDIS_PASSWORD and ELASTICACHE_SECRET_ARN set — static password wins, Secrets Manager ignored."
+                "Both REDIS_PASSWORD and ELASTICACHE_SECRET_ARN set - static password wins, Secrets Manager ignored."
             )
 
         # REDIS_SSL defaults False here: plain Redis is the common case for
@@ -111,7 +111,7 @@ def build_token_store() -> Any:
     if secret_arn and _has_aws_credentials():
         if not (redis_host and redis_port):
             raise RuntimeError(
-                "ELASTICACHE_SECRET_ARN is set but REDIS_HOST/REDIS_PORT are not — set both to use Redis."
+                "ELASTICACHE_SECRET_ARN is set but REDIS_HOST/REDIS_PORT are not - set both to use Redis."
             )
 
         # Lazy imports keep the AWS path's deps optional.
@@ -122,7 +122,7 @@ def build_token_store() -> Any:
         region = os.getenv("AWS_REGION", "us-east-1")
         token_key = os.getenv("REDIS_AUTH_TOKEN_KEY", "authToken")
 
-        # Eager fetch — a missing key fails startup, not the first OAuth flow.
+        # Eager fetch - a missing key fails startup, not the first OAuth flow.
         secret = get_secret(secret_arn, region)
         if token_key not in secret:
             raise RuntimeError(f"REDIS_AUTH_TOKEN_KEY {token_key!r} not present in secret {secret_arn}")
@@ -150,7 +150,7 @@ def build_token_store() -> Any:
     if secret_arn:
         logger.warning(
             "ELASTICACHE_SECRET_ARN is set but IRSA / Pod Identity env vars "
-            "(AWS_ROLE_ARN or AWS_CONTAINER_CREDENTIALS_FULL_URI) are missing — "
+            "(AWS_ROLE_ARN or AWS_CONTAINER_CREDENTIALS_FULL_URI) are missing - "
             "skipping Secrets Manager auth."
         )
 

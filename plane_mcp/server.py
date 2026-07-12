@@ -30,7 +30,7 @@ DEFAULT_ALLOWED_REDIRECT_URIS = [
     "https://antigravity.google/oauth-callback",
     # Claude.ai web client
     "https://claude.ai/*",
-    # ChatGPT connectors — per-connector callback + legacy redirect
+    # ChatGPT connectors - per-connector callback + legacy redirect
     "https://chatgpt.com/connector/oauth/*",
     "https://chatgpt.com/connector_platform_oauth_redirect",
 ]
@@ -95,7 +95,7 @@ def get_stdio_mcp():
 
 
 # Tool-name prefixes considered read-only. Everything else is stripped from the
-# read-only endpoint. Note: resolve_* is deliberately NOT read-only — the
+# read-only endpoint. Note: resolve_* is deliberately NOT read-only - the
 # resolve_work_item_type tool creates the type when it does not exist.
 READONLY_TOOL_PREFIXES = ("list_", "retrieve_", "get_", "count_", "search_", "read_")
 

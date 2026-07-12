@@ -43,7 +43,7 @@ def register_cycle_tools(mcp: FastMCP) -> None:
         Args:
             project_id: UUID of the project
             archived: Set True to list archived cycles instead of active ones.
-            status: Filter active cycles by status — "current" (running now),
+            status: Filter active cycles by status - "current" (running now),
                 "upcoming" (starts later), "completed" (ended), "draft" (no dates),
                 or "incomplete" (not yet finished). Ignored when archived is True.
             cursor: Pagination cursor from a previous response's next_cursor
@@ -357,7 +357,7 @@ def register_cycle_tools(mcp: FastMCP) -> None:
         """
         Complete (close) a cycle by setting its end date to today.
 
-        Plane has no explicit "complete" action — a cycle is considered complete
+        Plane has no explicit "complete" action - a cycle is considered complete
         when its end_date is in the past. This tool sets end_date to today,
         effectively closing the cycle.
 

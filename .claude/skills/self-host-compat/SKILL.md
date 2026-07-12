@@ -1,6 +1,6 @@
 ---
 name: self-host-compat
-description: Use when debugging 404/401/500 errors against self-hosted Plane, or when a tool works on Cloud but fails on Community Edition — endpoint mapping, capability checks, fallback strategy.
+description: Use when debugging 404/401/500 errors against self-hosted Plane, or when a tool works on Cloud but fails on Community Edition - endpoint mapping, capability checks, fallback strategy.
 ---
 
 # Self-host vs Cloud compatibility
@@ -11,7 +11,7 @@ differently than on Cloud.
 ## Diagnosis order
 
 1. Reproduce with a direct API call (curl with the same PAT) against
-   `PLANE_BASE_URL` — isolates SDK/MCP from the Plane API itself:
+   `PLANE_BASE_URL` - isolates SDK/MCP from the Plane API itself:
    ```bash
    curl -s -H "x-api-key: $PLANE_API_KEY" \
      "$PLANE_BASE_URL/api/v1/workspaces/$PLANE_WORKSPACE_SLUG/projects/" | head
@@ -21,8 +21,8 @@ differently than on Cloud.
 3. 401/403 → verify PAT validity and workspace slug; check whether the endpoint needs
    a role the token's user lacks.
 4. Feature-gated (initiatives, intake, types/properties)? Check `get_features` /
-   workspace features — CE may have it disabled.
-5. Record the finding in `docs/plane-api-compat.md` (known differences table) —
+   workspace features - CE may have it disabled.
+5. Record the finding in `docs/plane-api-compat.md` (known differences table) -
    every confirmed difference gets a row.
 
 ## Fixing
@@ -35,6 +35,6 @@ differently than on Cloud.
 
 ## Auth model (this fork)
 
-Primary: PAT — env `PLANE_API_KEY` + `PLANE_WORKSPACE_SLUG` (stdio) or headers
+Primary: PAT - env `PLANE_API_KEY` + `PLANE_WORKSPACE_SLUG` (stdio) or headers
 `x-api-key` + `x-workspace-slug` (HTTP `/http/api-key/mcp`). OAuth is secondary;
 self-host workflows must not depend on it.

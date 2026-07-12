@@ -313,7 +313,7 @@ def register_project_tools(mcp: FastMCP) -> None:
         List members of a project (filterable, paginated).
 
         Optional filters first_name/last_name/email/display_name (case-insensitive
-        contains), role_slug (exact), is_active, is_bot — combined with AND.
+        contains), role_slug (exact), is_active, is_bot - combined with AND.
 
         Args:
             project_id: UUID of the project.
@@ -442,7 +442,7 @@ def register_project_tools(mcp: FastMCP) -> None:
         Args:
             project_id: UUID of the project
             name: Name of the estimate (e.g., "Story Points", "T-Shirt Sizes")
-            type: Estimate type — "categories", "points", or "time"
+            type: Estimate type - "categories", "points", or "time"
             description: Optional description
             last_used: Whether this becomes the active estimate (default True)
             external_id: External system identifier

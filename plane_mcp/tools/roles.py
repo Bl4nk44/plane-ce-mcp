@@ -23,7 +23,7 @@ def register_role_tools(mcp: FastMCP) -> None:
         namespace="workspace" → Owner/Admin/Member/Guest; "project" → project-role
         defs shared across all projects (Admin/Contributor/Commenter/Guest); omit
         for both. slug is stable but NOT globally unique (admin/guest exist in
-        both namespaces) — key by (namespace, slug).
+        both namespaces) - key by (namespace, slug).
 
         Args:
             namespace: "workspace" or "project"; omit for both.

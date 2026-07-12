@@ -27,7 +27,7 @@ REGION = "us-east-1"
 
 # Dummy AWS credentials so boto3's credential resolver is short-circuited and
 # never tries to hit the IMDS endpoint when AWS_CONTAINER_CREDENTIALS_FULL_URI
-# is set by a test fixture. These values are inert — boto3 calls are stubbed.
+# is set by a test fixture. These values are inert - boto3 calls are stubbed.
 _FAKE_AWS_ENV = {
     "AWS_ACCESS_KEY_ID": "test",
     "AWS_SECRET_ACCESS_KEY": "test",
@@ -116,7 +116,7 @@ def capture_log(caplog):
     """Capture records from a fastmcp-namespaced logger.
 
     The ``fastmcp`` logger sets ``propagate=False``, so caplog's root handler
-    never sees these records — attach it directly to the target logger.
+    never sees these records - attach it directly to the target logger.
     """
 
     def _capture(logger_name: str):
@@ -129,7 +129,7 @@ def capture_log(caplog):
 
 
 # ---------------------------------------------------------------------------
-# get_secret — caching & race handling
+# get_secret - caching & race handling
 # ---------------------------------------------------------------------------
 
 
@@ -187,7 +187,7 @@ def test_get_secret_concurrent_race_uses_existing_fresh_entry(monkeypatch):
 
     # Simulate a racing thread that wrote a fresh entry after our fast-path
     # check passed but before our write-back. We do that by injecting into
-    # json.loads — which runs between the boto3 call and the lock re-check.
+    # json.loads - which runs between the boto3 call and the lock re-check.
     original_loads = aws_secrets.json.loads
 
     def _injecting_loads(s):
@@ -250,7 +250,7 @@ def test_credential_provider_missing_key_raises(monkeypatch):
 
 
 # ---------------------------------------------------------------------------
-# _build_token_store — backend selection
+# _build_token_store - backend selection
 # ---------------------------------------------------------------------------
 
 
@@ -433,7 +433,7 @@ def test_password_path_honors_redis_ssl_true(monkeypatch, no_ping):
 
 
 # ---------------------------------------------------------------------------
-# _ping_redis — eager reachability check
+# _ping_redis - eager reachability check
 # ---------------------------------------------------------------------------
 
 

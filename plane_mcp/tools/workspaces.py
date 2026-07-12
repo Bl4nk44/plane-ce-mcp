@@ -28,7 +28,7 @@ def register_workspace_tools(mcp: FastMCP) -> None:
         List members of the current workspace (filterable, paginated).
 
         Optional filters first_name/last_name/email/display_name (case-insensitive
-        contains), role_slug (exact), is_active, is_bot — combined with AND.
+        contains), role_slug (exact), is_active, is_bot - combined with AND.
 
         Args:
             cursor: Prior response's next_cursor; omit for first page.

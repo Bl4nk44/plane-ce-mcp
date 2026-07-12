@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-plane-ce-mcp — an unofficial Python-based Model Context Protocol server that exposes Plane's project management API as MCP tools, targeting **self-hosted Plane (Community Edition)**. Built on FastMCP with the official `plane-sdk`. Supports three transport modes: stdio (local), HTTP (with OAuth or header auth), and SSE (legacy).
+plane-ce-mcp - an unofficial Python-based Model Context Protocol server that exposes Plane's project management API as MCP tools, targeting **self-hosted Plane (Community Edition)**. Built on FastMCP with the official `plane-sdk`. Supports three transport modes: stdio (local), HTTP (with OAuth or header auth), and SSE (legacy).
 
 ## Common Commands
 
@@ -40,7 +40,7 @@ ruff check plane_mcp/
 
 `plane_mcp/__main__.py` parses a positional arg (`stdio`, `http`, or `sse`) and launches the corresponding server:
 - **stdio**: Requires `PLANE_API_KEY` + `PLANE_WORKSPACE_SLUG` env vars. Runs locally.
-- **http**: Starts on port 8211 with two auth endpoints — OAuth (`/oauth/mcp`) and header-based PAT (`/http/api-key/mcp`).
+- **http**: Starts on port 8211 with two auth endpoints - OAuth (`/oauth/mcp`) and header-based PAT (`/http/api-key/mcp`).
 - **sse**: Legacy OAuth-only SSE transport.
 
 ### Server Factories (`server.py`)
@@ -53,8 +53,8 @@ Three factory functions (`get_oauth_mcp`, `get_header_mcp`, `get_stdio_mcp`) eac
 
 ### Authentication (`auth/`)
 
-- `PlaneOAuthProvider` — Full OAuth flow with token verification against the Plane API.
-- `PlaneHeaderAuthProvider` — Simple header-based auth using `x-api-key` and `x-workspace-slug` headers.
+- `PlaneOAuthProvider` - Full OAuth flow with token verification against the Plane API.
+- `PlaneHeaderAuthProvider` - Simple header-based auth using `x-api-key` and `x-workspace-slug` headers.
 
 ### Tools (`tools/`)
 
@@ -74,7 +74,7 @@ Tools return Pydantic models from `plane-sdk` and use Python 3.10+ union syntax 
 
 ### Testing
 
-Integration tests in `tests/test_integration.py` use `FastMCP.Client` with `StreamableHttpTransport`. Tests run against a live Plane instance — configure via `.env.test` (copy to `.env.test.local` with real values).
+Integration tests in `tests/test_integration.py` use `FastMCP.Client` with `StreamableHttpTransport`. Tests run against a live Plane instance - configure via `.env.test` (copy to `.env.test.local` with real values).
 
 ## Key Environment Variables
 
@@ -91,14 +91,14 @@ Integration tests in `tests/test_integration.py` use `FastMCP.Client` with `Stre
 
 ## Project Mission
 
-This is a standalone, unofficial project (originally forked from `makeplane/plane-mcp-server`, MIT — remote `upstream` kept for cherry-picks). Its purpose is to make the MCP server work reliably against a **self-hosted Plane instance (Community Edition, Docker)**. Plane Cloud is out of scope: Cloud code paths stay in place but are untested and unadvertised.
+This is a standalone, unofficial project (originally forked from `makeplane/plane-mcp-server`, MIT - remote `upstream` kept for cherry-picks). Its purpose is to make the MCP server work reliably against a **self-hosted Plane instance (Community Edition, Docker)**. Plane Cloud is out of scope: Cloud code paths stay in place but are untested and unadvertised.
 
 **Current phase: self-host stabilization.** Priorities, in order:
 1. Critical daily-use tools work against self-host: work items (create/update/list), projects, cycles, modules, states, labels.
 2. Consistent error handling and diagnosability (404/401 must produce actionable messages, not stack traces).
 3. Self-host vs Cloud differences documented and handled (see `docs/plane-api-compat.md`).
 4. Pages/Docs tools solid + public read-only HTTPS endpoint for external agents
-   (Perplexity) — see roadmap stages 12–13.
+   (Perplexity) - see roadmap stages 12-13.
 5. Nice-to-haves (stats, reports, extra tools) come after the above.
 
 The full staged plan lives in `docs/roadmap.md`. Manual verification checklist: `docs/self-host-testing.md`.
@@ -106,34 +106,34 @@ The full staged plan lives in `docs/roadmap.md`. Manual verification checklist: 
 ## Rules for New or Modified Tools
 
 - Follow the existing tool pattern (see Tools section above). One domain per module, registered via `register_*_tools` in `tools/__init__.py`.
-- Every tool that hits the Plane API must handle: 404 (missing resource OR endpoint not available on this Plane version), 401/403 (auth), timeouts. Return a clear error message naming the resource and endpoint — never let a raw SDK exception surface to the MCP client.
+- Every tool that hits the Plane API must handle: 404 (missing resource OR endpoint not available on this Plane version), 401/403 (auth), timeouts. Return a clear error message naming the resource and endpoint - never let a raw SDK exception surface to the MCP client.
 - Endpoint differences between Plane versions (e.g. `/work-items/` vs legacy `/issues/`, lite endpoints) are handled centrally, not with per-tool hacks. Compatibility notes and fallback strategy: `docs/plane-api-compat.md`.
 - Log fallbacks when they trigger (which endpoint failed, which was used instead) so self-host issues are diagnosable from logs.
 - New tool = docstring with Args/Returns + entry in README tool tables + manual check against the local self-host instance before merge.
 
 ## Prohibitions
 
-- Do NOT change or remove existing tool signatures/behavior without a fallback path for self-host — MCP clients depend on them.
+- Do NOT change or remove existing tool signatures/behavior without a fallback path for self-host - MCP clients depend on them.
 - Do NOT add dependencies without justification; pin exact versions for anything security-relevant.
 - Do NOT rely on Cloud-only endpoints or features without a capability check or documented fallback.
 - Do NOT merge tool changes that were not exercised against the local self-host Plane (checklist in `docs/self-host-testing.md`).
 ## Upstream Cherry-Picks
 
 - Remote `upstream` = `makeplane/plane-mcp-server`. Review upstream changes occasionally: `git fetch upstream && git log --oneline main..upstream/main`.
-- Cherry-pick generally useful fixes selectively (no wholesale merges — histories have diverged); run the self-host test checklist after every pick.
+- Cherry-pick generally useful fixes selectively (no wholesale merges - histories have diverged); run the self-host test checklist after every pick.
 - Offering general fixes upstream as PRs is optional.
 
-## Session Memory (memorygraph MCP — use actively)
+## Session Memory (memorygraph MCP - use actively)
 
-Sessions are frequently restarted — persist important context to the memorygraph MCP
+Sessions are frequently restarted - persist important context to the memorygraph MCP
 server so nothing critical is lost between sessions.
 
 **At session start / before tackling a problem:**
-- `recall_memories(query="<problem description>")` — check whether it was already
+- `recall_memories(query="<problem description>")` - check whether it was already
   solved or investigated. For exact names (tool, endpoint, error code) prefer
   `search_memories` with tags.
 
-**Store during work (don't wait to be asked)** — tag every entry `plane-mcp`:
+**Store during work (don't wait to be asked)** - tag every entry `plane-mcp`:
 - Confirmed self-host vs Cloud API difference (also goes in `docs/plane-api-compat.md`;
   memory entry = quick pointer + verdict) → type `problem`/`solution`.
 - Root cause of a non-trivial bug in a tool, auth, or the SDK → `problem` + `solution`.

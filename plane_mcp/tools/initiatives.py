@@ -50,7 +50,7 @@ def register_initiative_tools(mcp: FastMCP) -> None:
 
         Raises:
             ToolError: if the initiatives feature is disabled. When disabled,
-                initiatives are "Initiative" work items — the error gives the steps.
+                initiatives are "Initiative" work items - the error gives the steps.
         """
         client, workspace_slug = get_plane_client_context()
         _require_native_initiatives(
@@ -59,7 +59,7 @@ def register_initiative_tools(mcp: FastMCP) -> None:
             'Initiatives are stored as "Initiative" work items here. List them with '
             'resolve_work_item_type(project_id, "Initiative"), then '
             "list_work_items(project_id, pql='type = \"<type id>\"'). "
-            "Work items belong to a project — ask which if not named.",
+            "Work items belong to a project - ask which if not named.",
         )
         response: PaginatedInitiativeResponse = client.initiatives.list(workspace_slug=workspace_slug, params=params)
         return response.results
@@ -92,7 +92,7 @@ def register_initiative_tools(mcp: FastMCP) -> None:
         Raises:
             ToolError: if the workspace's initiatives feature is disabled. Native
                 initiatives require the feature to be enabled in workspace settings.
-                When disabled, create an "Initiative" work item instead — the error
+                When disabled, create an "Initiative" work item instead - the error
                 message gives the exact steps.
         """
         client, workspace_slug = get_plane_client_context()
@@ -101,8 +101,8 @@ def register_initiative_tools(mcp: FastMCP) -> None:
             client,
             workspace_slug,
             f'Create {name!r} as an "Initiative" work item instead:\n'
-            "1. Work items belong to a project — if not named, ask the user which project to use.\n"
-            '2. type = resolve_work_item_type(project_id, "Initiative") — finds or creates the type automatically.\n'
+            "1. Work items belong to a project - if not named, ask the user which project to use.\n"
+            '2. type = resolve_work_item_type(project_id, "Initiative") - finds or creates the type automatically.\n'
             f"3. create_work_item(project_id=project_id, type_id=type.id, name={name!r}).",
         )
 
@@ -131,7 +131,7 @@ def register_initiative_tools(mcp: FastMCP) -> None:
 
         Raises:
             ToolError: if the initiatives feature is disabled. When disabled, the
-                initiative is an "Initiative" work item — the error gives the steps.
+                initiative is an "Initiative" work item - the error gives the steps.
         """
         client, workspace_slug = get_plane_client_context()
         _require_native_initiatives(
@@ -171,7 +171,7 @@ def register_initiative_tools(mcp: FastMCP) -> None:
 
         Raises:
             ToolError: if the initiatives feature is disabled. When disabled, the
-                initiative is an "Initiative" work item — the error gives the steps.
+                initiative is an "Initiative" work item - the error gives the steps.
         """
         client, workspace_slug = get_plane_client_context()
         _require_native_initiatives(
@@ -203,7 +203,7 @@ def register_initiative_tools(mcp: FastMCP) -> None:
 
         Raises:
             ToolError: if the initiatives feature is disabled. When disabled, the
-                initiative is an "Initiative" work item — the error gives the steps.
+                initiative is an "Initiative" work item - the error gives the steps.
         """
         client, workspace_slug = get_plane_client_context()
         _require_native_initiatives(

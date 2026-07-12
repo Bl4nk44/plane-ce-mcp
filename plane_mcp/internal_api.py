@@ -1,7 +1,7 @@
 """Session-authenticated client for Plane's internal web API.
 
 Community Edition (verified on v1.3.1) does not expose Pages in the public
-`/api/v1/` API — pages exist only in the internal web-app API under `/api/`,
+`/api/v1/` API - pages exist only in the internal web-app API under `/api/`,
 which requires Django session-cookie authentication (a PAT gets 401 there).
 
 This adapter signs in with a dedicated Plane account (email + password from
@@ -94,7 +94,7 @@ class PlaneInternalClient:
             self._sign_in()
         response = self._http.request(method, path, **kwargs)
         if response.status_code == 401:
-            # Session expired — re-authenticate once and retry.
+            # Session expired - re-authenticate once and retry.
             logger.warning("Internal-API session expired, re-authenticating")
             self._signed_in = False
             self._sign_in()
