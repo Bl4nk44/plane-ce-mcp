@@ -59,8 +59,8 @@ representative at an online or offline event.
 ## Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported to the community leaders responsible for enforcement at
-squawk@plane.so.
+reported to
+the maintainer via GitHub: https://github.com/Bl4nk44/plane-ce-mcp/issues (or a private security advisory for sensitive reports).
 All complaints will be reviewed and investigated promptly and fairly.
 
 All community leaders are obligated to respect the privacy and security of the
