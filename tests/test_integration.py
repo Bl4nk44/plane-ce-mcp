@@ -68,7 +68,7 @@ async def run_integration_test():
        (skipped on editions without the milestones API)
     9. Update the milestone to change its name and description
     10. Delete work items and the epic
-    11. Delete project (always runs, even on failure — no orphans left behind)
+    11. Delete project (always runs, even on failure - no orphans left behind)
     """
     config = get_config()
     unique_id = uuid.uuid4().hex[:6]
@@ -100,7 +100,7 @@ async def run_integration_test():
             await _run_project_scenario(client, project_id, unique_id)
         finally:
             # Deleting the project cascades to any work items/epics/milestones
-            # left behind by a mid-scenario failure — no orphans in the workspace.
+            # left behind by a mid-scenario failure - no orphans in the workspace.
             print("Deleting project...")
             await client.call_tool("delete_project", {"project_id": project_id})
             print("Deleted project")
@@ -146,7 +146,7 @@ async def _run_project_scenario(client, project_id: str, unique_id: str) -> None
     )
     print("Set work item 1 as parent of work item 2")
 
-    # 5-7. Epic flow — requires the issue-types API (not available on CE).
+    # 5-7. Epic flow - requires the issue-types API (not available on CE).
     epic_id = None
     try:
         print("Finding or creating 'Epic' work item type...")
@@ -194,7 +194,7 @@ async def _run_project_scenario(client, project_id: str, unique_id: str) -> None
             raise
         print(f"SKIPPED epic flow (not supported by this Plane edition): {e}")
 
-    # 8-9. Milestone flow — not available on all editions either.
+    # 8-9. Milestone flow - not available on all editions either.
     associated_ids = [wid for wid in (epic_id, work_item_1_id, work_item_2_id) if wid]
     try:
         print("Creating milestone...")

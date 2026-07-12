@@ -24,7 +24,7 @@ export $(cat .env.test.local | xargs) && pytest tests/test_integration.py -v
 
 - [ ] `list_projects` returns projects
 - [ ] `create_work_item` in a test project; verify visible in Plane UI
-- [ ] `update_work_item` — change name, state, priority
+- [ ] `update_work_item` - change name, state, priority
 - [ ] `list_work_items` with and without filters
 - [ ] `retrieve_work_item_by_identifier` (e.g. `PROJ-12`)
 - [ ] `create_work_item_comment` + `list_work_item_comments`
@@ -41,6 +41,6 @@ export $(cat .env.test.local | xargs) && pytest tests/test_integration.py -v
 
 ## Extended (when touched)
 
-- [ ] Work item types / properties (CE feature availability — note results in
+- [ ] Work item types / properties (CE feature availability - note results in
       `docs/plane-api-compat.md`)
 - [ ] Intake, initiatives, milestones, pages, work logs

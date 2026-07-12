@@ -42,12 +42,12 @@ def register_work_item_property_tools(mcp: FastMCP) -> None:
           - project_id + work_item_type_id       → properties linked to that type in that project,
                                                    falling back to project-flat then workspace if empty
 
-        For PQL filtering by name, prefer calling with NO args — one workspace-wide
+        For PQL filtering by name, prefer calling with NO args - one workspace-wide
         fetch beats iterating every work item type. Each result includes the
         `display_name` you can match in-memory before composing `cf["<id>"]` in PQL.
 
         Each result includes:
-        - id: property UUID — use as cf["<id>"] in PQL filters
+        - id: property UUID - use as cf["<id>"] in PQL filters
         - display_name: user-facing label (e.g. "Fed", "Acceptance Criteria")
         - property_type: TEXT | OPTION | DECIMAL | BOOLEAN | DATETIME | RELATION | URL | EMAIL
         - options: for OPTION type, each option has id + name; use option id in PQL
@@ -59,7 +59,7 @@ def register_work_item_property_tools(mcp: FastMCP) -> None:
         """
         client, workspace_slug = get_plane_client_context()
 
-        # Fast path — no args: return every workspace-level property in ONE call.
+        # Fast path - no args: return every workspace-level property in ONE call.
         # Use this when resolving property UUIDs by display_name for PQL composition.
         if not work_item_type_id and not project_id:
             return client.workspace_work_item_properties.list(workspace_slug=workspace_slug)
@@ -149,8 +149,8 @@ def register_work_item_property_tools(mcp: FastMCP) -> None:
             display_name: Display name for the property
             property_type: TEXT | DATETIME | DECIMAL | BOOLEAN | OPTION | RELATION | URL | EMAIL | FILE | FORMULA
             project_id: UUID of the project. Omit for workspace-level property.
-            work_item_type_id: UUID of the work item type — omit to create at project level
-            relation_type: ISSUE | USER — required when property_type=RELATION
+            work_item_type_id: UUID of the work item type - omit to create at project level
+            relation_type: ISSUE | USER - required when property_type=RELATION
             description: Property description
             is_required: Whether the property is required
             default_value: Default value(s) for the property
@@ -162,7 +162,7 @@ def register_work_item_property_tools(mcp: FastMCP) -> None:
             validation_rules: Validation rules dictionary
             external_source: External system source name
             external_id: External system identifier
-            options: List of {name, color?, is_default?} dicts — for OPTION type
+            options: List of {name, color?, is_default?} dicts - for OPTION type
 
         Returns:
             Created WorkItemProperty object
@@ -229,7 +229,7 @@ def register_work_item_property_tools(mcp: FastMCP) -> None:
         Args:
             work_item_property_id: UUID of the property
             project_id: UUID of the project. Omit for workspace scope.
-            work_item_type_id: UUID of the work item type — omit to use project-level endpoint
+            work_item_type_id: UUID of the work item type - omit to use project-level endpoint
 
         Returns:
             WorkItemProperty object
@@ -277,10 +277,10 @@ def register_work_item_property_tools(mcp: FastMCP) -> None:
         Args:
             work_item_property_id: UUID of the property
             project_id: UUID of the project. Omit for workspace scope.
-            work_item_type_id: UUID of the work item type — required when project_id is provided
+            work_item_type_id: UUID of the work item type - required when project_id is provided
             display_name: Display name for the property
             property_type: TEXT | DATETIME | DECIMAL | BOOLEAN | OPTION | RELATION | URL | EMAIL | FILE | FORMULA
-            relation_type: ISSUE | USER — required when updating to RELATION
+            relation_type: ISSUE | USER - required when updating to RELATION
             description: Property description
             is_required: Whether the property is required
             default_value: Default value(s) for the property
@@ -361,7 +361,7 @@ def register_work_item_property_tools(mcp: FastMCP) -> None:
         Args:
             work_item_property_id: UUID of the property
             project_id: UUID of the project. Omit for workspace scope.
-            work_item_type_id: UUID of the work item type — omit to use project-level endpoint
+            work_item_type_id: UUID of the work item type - omit to use project-level endpoint
         """
         client, workspace_slug = get_plane_client_context()
         if project_id and work_item_type_id:
@@ -394,7 +394,7 @@ def register_work_item_property_tools(mcp: FastMCP) -> None:
         Attach or detach properties on a work item type in a single call.
 
         At least one of attach_ids or detach_ids must be provided.
-        Detach does not delete the property — it only removes the association.
+        Detach does not delete the property - it only removes the association.
 
         Args:
             project_id: UUID of the project
@@ -657,7 +657,7 @@ def register_work_item_property_tools(mcp: FastMCP) -> None:
         """
         Set (create or update) the value of a custom property on a work item.
 
-        Acts as an upsert — creates the value if it does not exist, updates it
+        Acts as an upsert - creates the value if it does not exist, updates it
         if it does. For multi-value properties (is_multi=True), replaces all
         existing values with the new ones.
 
@@ -673,7 +673,7 @@ def register_work_item_property_tools(mcp: FastMCP) -> None:
             project_id: UUID of the project
             work_item_id: UUID of the work item
             property_id: UUID of the work item property
-            value: The value to set (type depends on the property type — see above)
+            value: The value to set (type depends on the property type - see above)
             external_id: Optional external identifier for syncing
             external_source: Optional external source name (e.g. "github", "jira")
 

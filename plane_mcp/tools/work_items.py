@@ -71,19 +71,19 @@ def register_work_item_tools(mcp: FastMCP) -> None:
             per_page: 1-100, default 25.
             cursor: From previous response's next_cursor.
             expand: Comma-separated relations to expand (e.g. assignees,labels,state).
-            fields: Sparse fieldset — id, name, sequence_id, priority, state,
+            fields: Sparse fieldset - id, name, sequence_id, priority, state,
                 project, assignees, labels, type_id, description_html, start_date,
                 target_date, created_at, updated_at, created_by, is_draft. Use
                 `project` (not `project_id`) and `description_html` (there is no
                 `description` field). Any field you omit or misname comes back
-                null — a null here does NOT mean the item lacks that value; it
+                null - a null here does NOT mean the item lacks that value; it
                 means it was not requested. To read the description, include
                 description_html; for the type, include type_id.
             external_id / external_source: Filter by external system.
 
         Returns:
             results: Paginated list of work items.
-            total_count: True DB total, not page-bounded — use for counts.
+            total_count: True DB total, not page-bounded - use for counts.
             next_cursor: Cursor for the next page.
             prev_cursor: Cursor for the previous page.
         """
@@ -144,7 +144,7 @@ def register_work_item_tools(mcp: FastMCP) -> None:
         """
         Count work items across the workspace with optional grouping.
 
-        Use this for analytics — "how many urgent items?", "distribution by state?" —
+        Use this for analytics - "how many urgent items?", "distribution by state?" -
         without fetching full work item payloads.
 
         Args:
@@ -217,7 +217,7 @@ def register_work_item_tools(mcp: FastMCP) -> None:
             type_id: UUID of the work item type
             point: Story point value
             description_html: HTML description of the work item
-            description_stripped: Plain text description. Convenience only — it is
+            description_stripped: Plain text description. Convenience only - it is
                 wrapped into HTML and stored as description_html (Plane derives
                 description_stripped server-side). Ignored if description_html is set.
             priority: Priority level (urgent, high, medium, low, none)
@@ -327,7 +327,7 @@ def register_work_item_tools(mcp: FastMCP) -> None:
         Use `project` (not `project_id`) to get the project UUID.
 
         If you need the project UUID from a short identifier like "SHO",
-        use `list_projects()` instead — it returns `id` and `identifier`
+        use `list_projects()` instead - it returns `id` and `identifier`
         for every project.
 
         Args:
@@ -400,7 +400,7 @@ def register_work_item_tools(mcp: FastMCP) -> None:
             type_id: UUID of the work item type
             point: Story point value
             description_html: HTML description of the work item
-            description_stripped: Plain text description. Convenience only — it is
+            description_stripped: Plain text description. Convenience only - it is
                 wrapped into HTML and stored as description_html (Plane derives
                 description_stripped server-side). Ignored if description_html is set.
             priority: Priority level (urgent, high, medium, low, none)

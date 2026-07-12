@@ -2,7 +2,7 @@
 
 Central place for classifying Plane API errors and turning them into actionable
 MCP tool errors. Endpoint availability differences between Plane editions
-(Community Edition lacks pages, issue-types, initiatives, estimates — see
+(Community Edition lacks pages, issue-types, initiatives, estimates - see
 docs/plane-api-compat.md) are handled here, never inline in individual tools.
 
 The boundary is ``wrap_client``: ``get_plane_client_context()`` returns the SDK
@@ -71,7 +71,7 @@ def classify_http_error(error: HttpError) -> PlaneErrorKind:
 def describe_http_error(operation: str, error: HttpError) -> str:
     """Build a clear, actionable error message for an MCP client.
 
-    ``operation`` names what was attempted — an SDK call path like
+    ``operation`` names what was attempted - an SDK call path like
     ``work_item_types.list`` (from the client proxy) or a tool name.
     """
     kind = classify_http_error(error)
@@ -79,7 +79,7 @@ def describe_http_error(operation: str, error: HttpError) -> str:
         return (
             f"Plane API call '{operation}' failed: this Plane instance does not expose the "
             f"required API endpoint (HTTP 404, endpoint missing). This is usually an "
-            f"edition/version limitation — e.g. Community Edition lacks pages, issue-types, "
+            f"edition/version limitation - e.g. Community Edition lacks pages, issue-types, "
             f"initiatives and estimates APIs. See {COMPAT_DOC}."
         )
     if kind is PlaneErrorKind.MISSING_RESOURCE:
@@ -173,7 +173,7 @@ def _plane_base_url() -> str:
 
 
 def _fb_pages_list_project(group: Any, workspace_slug: str, project_id: str, params: Any = None, **kw: Any) -> Any:
-    # CE has no public Pages API — go through the internal session-auth adapter
+    # CE has no public Pages API - go through the internal session-auth adapter
     # (read-only; requires PLANE_INTERNAL_API_EMAIL/PASSWORD, see internal_api.py).
     internal = get_internal_client(_plane_base_url())
     pages = internal.list_project_pages(workspace_slug, project_id)
@@ -276,7 +276,7 @@ def wrap_client(client: Any) -> CompatClientProxy:
 # GET /api/instances/ is unauthenticated and works on self-host CE (verified on
 # v1.3.1); it exposes instance.current_version and instance.edition. There is no
 # /features/ capability endpoint on CE, so this is the only up-front signal for
-# self-host vs Cloud profiling. Errors never propagate — the profile is a hint,
+# self-host vs Cloud profiling. Errors never propagate - the profile is a hint,
 # not a dependency; endpoint 404s are still handled reactively by the proxy.
 
 # API families verified missing on Community Edition v1.3.1 (docs/plane-api-compat.md).
@@ -331,7 +331,7 @@ def describe_instance(base_url: str) -> dict[str, Any]:
         unavailable = list(CE_UNAVAILABLE_FEATURES)
         if internal_credentials_configured():
             # The internal-API adapter makes project pages readable despite the
-            # missing public API — do not report them as unavailable.
+            # missing public API - do not report them as unavailable.
             unavailable = [f for f in unavailable if not f.startswith("pages")]
             info["available_via_internal_adapter"] = (
                 "pages (project pages, read-only: list_pages/retrieve_page with a "

@@ -120,7 +120,7 @@ def register_work_item_type_tools(mcp: FastMCP) -> None:
         Matching is exact (case-sensitive, whitespace-stripped); an existing type is never duplicated.
 
         Prefer this over manually combining get_workspace_features, list_work_item_types,
-        create_work_item_type, and import_work_item_types_to_project — it does all of
+        create_work_item_type, and import_work_item_types_to_project - it does all of
         that deterministically.
 
         Args:
@@ -166,7 +166,7 @@ def register_work_item_type_tools(mcp: FastMCP) -> None:
             )
             return at_workspace
 
-        # Mode B — types are per-project; enable the feature if needed, then find or create.
+        # Mode B - types are per-project; enable the feature if needed, then find or create.
         project_features = client.projects.get_features(workspace_slug=workspace_slug, project_id=project_id)
         if not project_features.model_dump().get("work_item_types"):
             client.projects.update_features(

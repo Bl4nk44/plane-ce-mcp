@@ -22,7 +22,7 @@ def register_instance_tools(mcp: FastMCP) -> None:
 
         Returns:
             Dict with base_url, edition (e.g. "PLANE_COMMUNITY"), version,
-            compat_reference, and — for Community Edition — unavailable_features.
+            compat_reference, and - for Community Edition - unavailable_features.
         """
         base_url = os.getenv("PLANE_INTERNAL_BASE_URL") or os.getenv("PLANE_BASE_URL", "https://api.plane.so")
         return describe_instance(base_url)

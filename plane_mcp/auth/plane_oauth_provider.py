@@ -162,7 +162,7 @@ class PlaneOAuthTokenVerifier(TokenVerifier):
 
                 expires_at = int(time.time() + 3600)
 
-                # display_name is PII — only log it when explicitly opted in.
+                # display_name is PII - only log it when explicitly opted in.
                 if LOG_USER_INFO:
                     logger.info(f"User verified: ({user.id}) - {user.display_name}")
                 else:

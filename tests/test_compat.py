@@ -144,7 +144,7 @@ def _envelope(results: list[dict]) -> dict:
 
 
 class FakeProjectsGroup:
-    """list_lite 404s (missing endpoint); full list works — the CE 1.3.1 situation."""
+    """list_lite 404s (missing endpoint); full list works - the CE 1.3.1 situation."""
 
     def __init__(self):
         self.list_params = "unset"

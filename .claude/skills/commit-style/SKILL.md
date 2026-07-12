@@ -1,6 +1,6 @@
 ---
 name: commit-style
-description: Use when writing commit messages or preparing a PR in this repo — Conventional Commits with project-specific scopes and PR rules.
+description: Use when writing commit messages or preparing a PR in this repo - Conventional Commits with project-specific scopes and PR rules.
 ---
 
 # Commit & PR style
@@ -23,12 +23,12 @@ Examples:
 - `feat(compat): add shared endpoint fallback layer with WARNING logging`
 - `chore(deps): bump plane-sdk to 0.2.20`
 
-Body: only when the "why" isn't obvious from the subject — e.g. which Plane versions
+Body: only when the "why" isn't obvious from the subject - e.g. which Plane versions
 are affected, link to `docs/plane-api-compat.md` entry.
 
 ## PR rules
 
-- One logical change per commit; PR diff ≤150 lines where feasible — split larger work.
+- One logical change per commit; PR diff ≤150 lines where feasible - split larger work.
 - Squash merge.
 - PR description states: what was tested against the local self-host instance
   (reference `docs/self-host-testing.md` items run).

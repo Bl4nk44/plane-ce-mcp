@@ -110,7 +110,7 @@ def register_work_item_attachment_tools(mcp: FastMCP) -> None:
                 work_item_id=work_item_id,
             )
         except HttpError as e:
-            raise ValueError(f"Failed to list attachments: HTTP {e.status_code} — {e.response}") from e
+            raise ValueError(f"Failed to list attachments: HTTP {e.status_code} - {e.response}") from e
         return [_attachment_to_dict(a, workspace_slug) for a in attachments]
 
     @mcp.tool()
@@ -122,7 +122,7 @@ def register_work_item_attachment_tools(mcp: FastMCP) -> None:
         """Get a presigned download URL for a work item attachment.
 
         Returns a time-limited URL (typically valid ~1 hour) that can be
-        opened directly in a browser or downloaded with any HTTP client —
+        opened directly in a browser or downloaded with any HTTP client -
         no Plane authentication required on the URL itself.
 
         Use list_work_item_attachments first to get attachment IDs and names.
@@ -137,7 +137,7 @@ def register_work_item_attachment_tools(mcp: FastMCP) -> None:
         """
         client, workspace_slug = get_plane_client_context()
 
-        # Retrieve endpoint returns raw bytes, not JSON — use list for metadata.
+        # Retrieve endpoint returns raw bytes, not JSON - use list for metadata.
         try:
             attachments = client.work_items.attachments.list(
                 workspace_slug=workspace_slug,
@@ -145,7 +145,7 @@ def register_work_item_attachment_tools(mcp: FastMCP) -> None:
                 work_item_id=work_item_id,
             )
         except HttpError as e:
-            raise ValueError(f"Failed to fetch attachment metadata: HTTP {e.status_code} — {e.response}") from e
+            raise ValueError(f"Failed to fetch attachment metadata: HTTP {e.status_code} - {e.response}") from e
 
         attachment = next((a for a in attachments if a.id == attachment_id), None)
         if attachment is None:
@@ -162,7 +162,7 @@ def register_work_item_attachment_tools(mcp: FastMCP) -> None:
                 attachment_id=attachment_id,
             )
         except HttpError as e:
-            raise ValueError(f"Failed to get download URL: HTTP {e.status_code} — {e.response}") from e
+            raise ValueError(f"Failed to get download URL: HTTP {e.status_code} - {e.response}") from e
 
         return {
             "download_url": presigned_url,
@@ -240,7 +240,7 @@ def register_work_item_attachment_tools(mcp: FastMCP) -> None:
                 content_type=content_type,
             )
         except HttpError as e:
-            raise ValueError(f"Failed to upload attachment: HTTP {e.status_code} — {e.response}") from e
+            raise ValueError(f"Failed to upload attachment: HTTP {e.status_code} - {e.response}") from e
 
         return _attachment_to_dict(attachment, workspace_slug)
 
@@ -268,7 +268,7 @@ def register_work_item_attachment_tools(mcp: FastMCP) -> None:
                 attachment_id=attachment_id,
             )
         except HttpError as e:
-            raise ValueError(f"Failed to delete attachment: HTTP {e.status_code} — {e.response}") from e
+            raise ValueError(f"Failed to delete attachment: HTTP {e.status_code} - {e.response}") from e
 
     @mcp.tool()
     def read_work_item_attachment(
@@ -285,10 +285,10 @@ def register_work_item_attachment_tools(mcp: FastMCP) -> None:
             TXT, MD, CSV, HTML, XML, YAML, JSON
 
         Not supported (use get_work_item_attachment_download_url instead):
-          PDF            — requires a text-extraction library (not installed)
-          DOCX/XLSX/PPTX — binary Office formats, require extraction
-          Audio / Video  — non-textual binary formats
-          Generic binary — executables, archives, etc.
+          PDF            - requires a text-extraction library (not installed)
+          DOCX/XLSX/PPTX - binary Office formats, require extraction
+          Audio / Video  - non-textual binary formats
+          Generic binary - executables, archives, etc.
 
         Args:
             project_id: UUID of the project
@@ -304,7 +304,7 @@ def register_work_item_attachment_tools(mcp: FastMCP) -> None:
         """
         client, workspace_slug = get_plane_client_context()
 
-        # Retrieve endpoint returns raw bytes — use list for name + content_type.
+        # Retrieve endpoint returns raw bytes - use list for name + content_type.
         try:
             attachments = client.work_items.attachments.list(
                 workspace_slug=workspace_slug,
@@ -312,7 +312,7 @@ def register_work_item_attachment_tools(mcp: FastMCP) -> None:
                 work_item_id=work_item_id,
             )
         except HttpError as e:
-            raise ValueError(f"Failed to fetch attachment metadata: HTTP {e.status_code} — {e.response}") from e
+            raise ValueError(f"Failed to fetch attachment metadata: HTTP {e.status_code} - {e.response}") from e
 
         attachment = next((a for a in attachments if a.id == attachment_id), None)
         if attachment is None:
@@ -346,7 +346,7 @@ def register_work_item_attachment_tools(mcp: FastMCP) -> None:
                 attachment_id=attachment_id,
             )
         except HttpError as e:
-            raise ValueError(f"Failed to get download URL: HTTP {e.status_code} — {e.response}") from e
+            raise ValueError(f"Failed to get download URL: HTTP {e.status_code} - {e.response}") from e
 
         try:
             resp = _requests.get(presigned_url, timeout=_HTTP_TIMEOUT)

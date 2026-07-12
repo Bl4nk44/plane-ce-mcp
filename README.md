@@ -14,18 +14,18 @@ Edition instance and you hit missing "lite" endpoints, raw SDK stack traces on e
 404, and no pages support. This project fixes what upstream didn't:
 
 * **Central compatibility layer** ([plane_mcp/compat.py](plane_mcp/compat.py)): every
-  Plane API error becomes an actionable message — missing endpoint vs missing resource
+  Plane API error becomes an actionable message - missing endpoint vs missing resource
   vs auth vs timeout. No raw SDK exceptions reach the MCP client.
 * **Transparent endpoint fallbacks**: lite endpoints absent on CE fall back to the
   full endpoints (projects, cycles, modules, project/workspace members), with the
   fallback logged for diagnosability.
-* **PAT-only HTTP mode**: the HTTP transport runs without any OAuth configuration —
+* **PAT-only HTTP mode**: the HTTP transport runs without any OAuth configuration -
   header auth alone (`/http/api-key/mcp`).
 * **Pages tools on CE**: list/retrieve/search/create pages via Plane's internal API
   (CE has no public pages API), with content truncation for LLM-sized outputs.
 * **Documented CE vs Cloud differences**: [docs/plane-api-compat.md](docs/plane-api-compat.md).
 
-May still work against Plane Cloud — untested, unmaintained, not a goal.
+May still work against Plane Cloud - untested, unmaintained, not a goal.
 
 ## Quick start (stdio)
 
@@ -49,7 +49,7 @@ Requirements: **Python 3.10+** and [uv](https://docs.astral.sh/uv/).
 }
 ```
 
-`PLANE_BASE_URL` must point at your instance's API — the default is Plane Cloud
+`PLANE_BASE_URL` must point at your instance's API - the default is Plane Cloud
 (`https://api.plane.so`), so self-host setups **must** set it.
 
 ## HTTP transport (self-hosted, PAT auth)
@@ -60,7 +60,7 @@ Run the server next to your Plane instance (port 8211):
 PLANE_BASE_URL=https://plane.your-domain.tld python -m plane_mcp http
 ```
 
-Connect with a Personal Access Token — no OAuth setup required:
+Connect with a Personal Access Token - no OAuth setup required:
 
 **URL**: `http://<server>:8211/http/api-key/mcp`
 
@@ -84,7 +84,7 @@ Connect with a Personal Access Token — no OAuth setup required:
 ```
 
 An OAuth endpoint (`/oauth/mcp`) and a legacy SSE transport also exist for setups
-with a configured Plane OAuth app — see [Configuration](#configuration). Deployment
+with a configured Plane OAuth app - see [Configuration](#configuration). Deployment
 recipes (Docker Compose, Caddy, Tailscale) live in [deploy/](deploy/) and
 [docs/tailscale-deployment.md](docs/tailscale-deployment.md).
 
@@ -297,7 +297,7 @@ All tools use Pydantic models from the Plane SDK for type safety and validation.
 
 | Tool Name | Description |
 |-----------|-------------|
-| `list_pages` | List pages — metadata only (workspace, or a project's if `project_id` given) |
+| `list_pages` | List pages - metadata only (workspace, or a project's if `project_id` given) |
 | `retrieve_page` | Retrieve a page incl. content; optional `max_length` truncation (env default `PLANE_PAGES_MAX_CONTENT_LENGTH`) |
 | `search_pages` | Search pages by title, optionally inside content (client-side, case-insensitive) |
 | `create_page` | Create a workspace or project page |
@@ -338,12 +338,12 @@ ruff format plane_mcp/
 ruff check plane_mcp/
 ```
 
-Integration tests run against a live Plane instance — see
+Integration tests run against a live Plane instance - see
 [docs/self-host-testing.md](docs/self-host-testing.md) for the manual checklist.
 
 ## Attribution & License
 
-MIT License — see [LICENSE](LICENSE).
+MIT License - see [LICENSE](LICENSE).
 
 Based on [makeplane/plane-mcp-server](https://github.com/makeplane/plane-mcp-server)
 (MIT, © 2025 Plane MCP Server Contributors). This is an independent, unofficial
@@ -352,5 +352,5 @@ project: not affiliated with, endorsed by, or supported by Plane / makeplane.
 
 ## Contributing
 
-Contributions welcome — especially fixes for self-hosted Community Edition quirks.
+Contributions welcome - especially fixes for self-hosted Community Edition quirks.
 See [CONTRIBUTING.md](CONTRIBUTING.md).

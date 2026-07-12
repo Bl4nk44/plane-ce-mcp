@@ -12,7 +12,7 @@ PQL_FIELD_HINT = (
     '`priority = "urgent" AND assignee = currentUser()`, '
     "`stateGroup IN openStates() AND isOverdue()`. "
     "UUID fields (project, assignee, state, label, cycle, module, type, milestone, createdBy) "
-    "need UUIDs — call the relevant `list_*` tool first if you only have a name or short "
+    "need UUIDs - call the relevant `list_*` tool first if you only have a name or short "
     "identifier (e.g. `LSS` → call `list_projects` and match `identifier` to get `id`). "
     "Call `get_pql_reference` for full PQL syntax before composing complex queries."
 )
@@ -30,26 +30,26 @@ FIELDS
   stateGroup        = "backlog" | "unstarted" | "started" | "completed" | "cancelled"
   isDraft           = true | false   (also usable as predicate: isDraft() means isDraft = true)
   isArchived        = true | false   (also usable as predicate: isArchived() means isArchived = true)
-  title             ~ "keyword"          (title search — use for most text queries)
-  text              ~ "keyword"          (title + description — only when user asks to search body/content too)
+  title             ~ "keyword"          (title search - use for most text queries)
+  text              ~ "keyword"          (title + description - only when user asks to search body/content too)
   id                = "WEB-11"           (work item's own sequence identifier, e.g. "SHO-5")
   id                ~ "WEB"              (prefix search on the work item's sequence identifier)
   dueDate           date field
   startDate         date field
   createdAt         datetime field
   updatedAt         datetime field
-  assignee          UUID  — use currentUser() for current user, or a member UUID
-  state             UUID  — a state UUID
-  label             UUID  — a label UUID
-  cycle             UUID  — a cycle UUID, or activeCycle() / completedCycles() / upcomingCycles()
-  module            UUID  — a module UUID
-  project           UUID  — a project UUID
-  createdBy         UUID  — a member UUID
-  type              UUID  — a work item type UUID
-  milestone         UUID  — a milestone UUID
-  mention           UUID  — a member UUID
-  subscriber        UUID  — a member UUID
-  teamspaceProject  UUID  — a team project UUID
+  assignee          UUID  - use currentUser() for current user, or a member UUID
+  state             UUID  - a state UUID
+  label             UUID  - a label UUID
+  cycle             UUID  - a cycle UUID, or activeCycle() / completedCycles() / upcomingCycles()
+  module            UUID  - a module UUID
+  project           UUID  - a project UUID
+  createdBy         UUID  - a member UUID
+  type              UUID  - a work item type UUID
+  milestone         UUID  - a milestone UUID
+  mention           UUID  - a member UUID
+  subscriber        UUID  - a member UUID
+  teamspaceProject  UUID  - a team project UUID
 
 CUSTOM PROPERTIES  (cf["<property-uuid>"] syntax)
   cf["<property-uuid>"] = "<value>"
@@ -58,7 +58,7 @@ CUSTOM PROPERTIES  (cf["<property-uuid>"] syntax)
 
   To get property UUID and option UUIDs: call the work item types tool then the properties tool.
   Value rules: OPTION → option UUID (not display name); DECIMAL → bare number; BOOLEAN → bare true/false
-  Skip EMAIL, FILE, FORMULA properties — they cannot be filtered.
+  Skip EMAIL, FILE, FORMULA properties - they cannot be filtered.
 
 OPERATORS
   =  !=  >  >=  <  <=  ~(contains)  IN(...)  NOT IN(...)
@@ -75,9 +75,9 @@ DATE FUNCTIONS
   ⚠ No date arithmetic: never today()-7 or startOfWeek()+1
 
 USER FUNCTIONS
-  currentUser()                        — resolved from OAuth token
-  membersOf("project:<uuid>")          — list of user UUIDs in project
-  workspaceMembers()                   — all workspace member UUIDs
+  currentUser()                        - resolved from OAuth token
+  membersOf("project:<uuid>")          - list of user UUIDs in project
+  workspaceMembers()                   - all workspace member UUIDs
 
 CYCLE FUNCTIONS
   activeCycle()    completedCycles()    upcomingCycles()
@@ -87,13 +87,13 @@ STATE GROUP FUNCTIONS
   closedStates() →  ["completed","cancelled"]
   activeStates() →  ["unstarted","started"]
 
-PREDICATE FUNCTIONS  (standalone — no comparison needed)
+PREDICATE FUNCTIONS  (standalone - no comparison needed)
   isOverdue()          hasNoAssignee()      hasNoLabel()
   isTopLevel()         isSubWorkItem()      isEpic()
   hasChildren()        hasStartAndDueDates()
   isDraft()            isArchived()         isIntake()
 
-RELATION FUNCTIONS   (standalone — argument is work item id or UUID)
+RELATION FUNCTIONS   (standalone - argument is work item id or UUID)
   childOf("WEB-5")     parentOf("WEB-5")    linkedTo("WEB-5")
   blockedBy("WEB-5")   blocks("WEB-5")      duplicateOf("WEB-5")
 
@@ -116,7 +116,7 @@ EXAMPLES
   cf["<prop-uuid>"] = "<option-uuid>"
 
 UUID fields (assignee, state, label, cycle, module, project, type, milestone, createdBy)
-require a UUID — call the relevant list tool first if you only have a name.
+require a UUID - call the relevant list tool first if you only have a name.
 Custom property UUIDs: call the work item types tool then the properties tool.
 
 NOT SUPPORTED in PQL: history queries (wasEver, changedFrom, changedTo, commentedBy, etc.)
@@ -126,7 +126,7 @@ NOT SUPPORTED in PQL: history queries (wasEver, changedFrom, changedTo, commente
 # PQL_FULL_REFERENCE
 # ---------------------------------------------------------------------------
 # Returned in tool response when PQL is missing, invalid, or on retry.
-# More comprehensive — includes all operators, all functions, and common mistakes.
+# More comprehensive - includes all operators, all functions, and common mistakes.
 # ---------------------------------------------------------------------------
 PQL_FULL_REFERENCE = """\
 ## PQL (Plane Query Language) Reference
@@ -139,8 +139,8 @@ PQL_FULL_REFERENCE = """\
 | stateGroup       | string   | "backlog" "unstarted" "started" "completed" "cancelled"            |
 | isDraft          | boolean  | true / false (unquoted); isDraft() is shorthand for isDraft = true  |
 | isArchived       | boolean  | true / false (unquoted); isArchived() is shorthand for isArchived = true |
-| title            | string   | work item name — use ~ for contains                                |
-| text             | string   | title + description — only when user explicitly asks to search body |
+| title            | string   | work item name - use ~ for contains                                |
+| text             | string   | title + description - only when user explicitly asks to search body |
 | id               | string   | work item's own sequence ID e.g. "SHO-5"                          |
 | dueDate          | date     | "YYYY-MM-DD" or date function                                      |
 | startDate        | date     | "YYYY-MM-DD" or date function                                      |
@@ -195,49 +195,49 @@ monthsAgo(n)      monthsFromNow(n)
 ### User Functions
 
 ```
-currentUser()                          — current authenticated user
-membersOf("project:<uuid>")            — user UUIDs in project
-membersOf("teamspace:<uuid>")          — user UUIDs in teamspace
-workspaceMembers()                     — all workspace members
+currentUser()                          - current authenticated user
+membersOf("project:<uuid>")            - user UUIDs in project
+membersOf("teamspace:<uuid>")          - user UUIDs in teamspace
+workspaceMembers()                     - all workspace members
 ```
 
 ### Cycle / State Group Functions
 
 ```
-activeCycle()        — cycles where start_date ≤ today ≤ end_date
-completedCycles()    — cycles where end_date < today
-upcomingCycles()     — cycles where start_date > today
+activeCycle()        - cycles where start_date ≤ today ≤ end_date
+completedCycles()    - cycles where end_date < today
+upcomingCycles()     - cycles where start_date > today
 
 openStates()         → ["backlog","unstarted","started"]
 closedStates()       → ["completed","cancelled"]
 activeStates()       → ["unstarted","started"]
 ```
 
-### Predicate Functions (standalone — no comparison needed)
+### Predicate Functions (standalone - no comparison needed)
 
 ```
-isOverdue()                — dueDate < today AND state in open states
-hasNoAssignee()            — no assignee
-hasNoLabel()               — no label
-isTopLevel()               — no parent
-isSubWorkItem()            — has a parent (any parent, not specific)
-isEpic()                   — issue type is epic
-hasChildren()              — has sub-items
-hasStartAndDueDates()      — both startDate and dueDate are set
-isDraft()                  — is a draft
-isArchived()               — is archived
-isIntake()                 — is an intake item
+isOverdue()                - dueDate < today AND state in open states
+hasNoAssignee()            - no assignee
+hasNoLabel()               - no label
+isTopLevel()               - no parent
+isSubWorkItem()            - has a parent (any parent, not specific)
+isEpic()                   - issue type is epic
+hasChildren()              - has sub-items
+hasStartAndDueDates()      - both startDate and dueDate are set
+isDraft()                  - is a draft
+isArchived()               - is archived
+isIntake()                 - is an intake item
 ```
 
-### Relation Functions (standalone — pass work item id or UUID)
+### Relation Functions (standalone - pass work item id or UUID)
 
 ```
-childOf("WEB-5")           — sub-items OF a specific work item
-parentOf("WEB-5")          — work items that are parent of a specific item
-linkedTo("WEB-5")          — issues related to WEB-5 (both directions)
-blockedBy("WEB-5")         — issues blocked by WEB-5
-blocks("WEB-5")            — issues that block WEB-5
-duplicateOf("WEB-5")       — issues that duplicate WEB-5
+childOf("WEB-5")           - sub-items OF a specific work item
+parentOf("WEB-5")          - work items that are parent of a specific item
+linkedTo("WEB-5")          - issues related to WEB-5 (both directions)
+blockedBy("WEB-5")         - issues blocked by WEB-5
+blocks("WEB-5")            - issues that block WEB-5
+duplicateOf("WEB-5")       - issues that duplicate WEB-5
 ```
 Argument must be a work item identifier (e.g. "WEB-5") or UUID. Never a title.
 
@@ -258,7 +258,7 @@ cf["<property-uuid>"] IS NULL
 cf["<property-uuid>"] IS NOT NULL
 ```
 
-**Operator matrix — pick operators matching the property's type:**
+**Operator matrix - pick operators matching the property's type:**
 
 | Property type   | Allowed operators                                            | Value shape                      |
 |-----------------|--------------------------------------------------------------|----------------------------------|
@@ -268,13 +268,13 @@ cf["<property-uuid>"] IS NOT NULL
 | DECIMAL         | =, !=, >, >=, <, <=, BETWEEN...AND..., IS NULL, IS NOT NULL | bare number (never quoted)       |
 | DATETIME        | =, !=, >, >=, <, <=, BETWEEN...AND..., IS NULL, IS NOT NULL | quoted "YYYY-MM-DD" or date fn   |
 | BOOLEAN         | =, IS NULL, IS NOT NULL                                      | bare true / false (never quoted) |
-| EMAIL, FILE, FORMULA | — omit this condition entirely —                        | not filterable                   |
+| EMAIL, FILE, FORMULA | - omit this condition entirely -                        | not filterable                   |
 
 **Value typing rules:**
 - OPTION: use the option's UUID, NEVER its display name
-- DECIMAL: bare number — `cf["uuid"] = 42`, never `cf["uuid"] = "42"`
-- BOOLEAN: bare `true`/`false` — `cf["uuid"] = true`, never `cf["uuid"] = "true"`
-- DATETIME: quoted string or date function — `cf["uuid"] >= daysAgo(7)`
+- DECIMAL: bare number - `cf["uuid"] = 42`, never `cf["uuid"] = "42"`
+- BOOLEAN: bare `true`/`false` - `cf["uuid"] = true`, never `cf["uuid"] = "true"`
+- DATETIME: quoted string or date function - `cf["uuid"] >= daysAgo(7)`
 - Do NOT use IN/NOT IN on TEXT, URL, DECIMAL, DATETIME, or BOOLEAN properties
 
 ### Limits
@@ -285,7 +285,7 @@ cf["<property-uuid>"] IS NOT NULL
 - Each BETWEEN...AND... = 1 condition
 - Each predicate/relation function call = 1 condition
 
-### UUID Fields — How to get UUIDs
+### UUID Fields - How to get UUIDs
 
 UUID fields (assignee, state, label, cycle, module, project, createdBy, type, milestone,
 mention, subscriber, teamspaceProject) require actual UUIDs. If you don't have a UUID,
@@ -306,7 +306,7 @@ For custom property UUIDs:
   1. list_work_item_types with project_id               → get type_id
   2. list_work_item_properties with type_id, project_id → property UUID + option UUIDs
 
-Exception — these resolve without UUIDs:
+Exception - these resolve without UUIDs:
 - `assignee = currentUser()`
 - `cycle IN activeCycle()`
 - `cycle IN completedCycles()`

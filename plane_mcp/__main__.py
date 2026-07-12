@@ -23,7 +23,7 @@ class UserContextFilter(logging.Filter):
     """Attach authenticated user/workspace context to every log record.
 
     Pulls the current request's access token via FastMCP's dependency, which
-    returns None (never raises) outside a request context — so startup logs fall
+    returns None (never raises) outside a request context - so startup logs fall
     back to environment config and otherwise carry no user info.
 
     Always logs the opaque user id (sub claim) and the workspace slug; neither is
@@ -136,7 +136,7 @@ def _build_http_app(prefix: str) -> Starlette:
     On self-host deployments PAT header auth is the primary mode, so when
     OAuth is not configured we serve only the header-auth endpoints instead
     of failing. The read-only endpoint (/http/api-key-readonly/mcp) exposes
-    only list/retrieve/get/count/search/read tools — the surface meant for
+    only list/retrieve/get/count/search/read tools - the surface meant for
     external agents (Tailscale Funnel, Perplexity).
     """
     header_app = get_header_mcp().http_app(stateless_http=True)

@@ -26,7 +26,7 @@ transport: streamable-http; override CMD with `stdio`/`sse` if needed.
   smoke test: container starts, `/http/api-key/mcp` responds with valid headers.
 - When the MCP container runs next to the Plane compose stack, prefer
   `PLANE_INTERNAL_BASE_URL` pointing at Plane's internal service name (skips proxy).
-- Redis env (`REDIS_HOST`/`REDIS_PORT`) only matters for OAuth token storage —
+- Redis env (`REDIS_HOST`/`REDIS_PORT`) only matters for OAuth token storage -
   header-auth/PAT mode works without it (in-memory fallback).
 - Before pushing a release image: green CI + `docs/self-host-testing.md` core
   checklist passed against the local instance.
