@@ -9,7 +9,11 @@ Stages below are a checklist; keep it updated as work lands.
 - [x] Detached from upstream: fresh repo `Bl4nk44/plane-ce-mcp`, mirror-pushed.
 - [x] R1 metadata (pyproject → plane-ce-mcp 1.0.0, LICENSE, glama.json removed).
 - [x] R2 README rewrite (self-host-first). R3 community files. R4 CLAUDE.md/docs.
-- [ ] R5 server.py branding. R6 verification + tag v1.0.0 + delete old fork.
+- [x] R5 server.py branding (server names, website_url, favicon dropped).
+- [x] R6 verification: full pytest 96 passed against live self-host CE
+      (server needs PLANE_BASE_URL, else PAT validates against Cloud → 403);
+      fresh `uvx --from git+.../plane-ce-mcp` stdio smoke OK. Tag v1.0.0.
+- [x] Old fork Bl4nk44/plane-mcp-server deleted.
 - Full plan: `docs/rebrand-plan.md`. Cloud-compat roadmap items now out of scope.
 
 ## Stage 1 — Project & requirements audit
