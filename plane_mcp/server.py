@@ -37,6 +37,15 @@ DEFAULT_ALLOWED_REDIRECT_URIS = [
 ]
 
 
+def log_payloads() -> bool:
+    """Whether tool-call payloads are included in structured logs.
+
+    Payloads can carry PII and full work-item descriptions, so they are OFF by
+    default and enabled only with LOG_PAYLOADS=true (e.g. for debugging).
+    """
+    return os.getenv("LOG_PAYLOADS", "").lower() == "true"
+
+
 def get_allowed_client_redirect_uris() -> list[str]:
     """Return the redirect URI allowlist: built-in defaults plus any extras
     from the PLANE_OAUTH_ALLOWED_REDIRECT_URIS env var (comma-separated)."""
@@ -67,7 +76,7 @@ def get_oauth_mcp(base_path: str = "/") -> FastMCP:
             allowed_client_redirect_uris=get_allowed_client_redirect_uris(),
         ),
     )
-    oauth_mcp.add_middleware(PlaneLoggingMiddleware(include_payloads=True))
+    oauth_mcp.add_middleware(PlaneLoggingMiddleware(include_payloads=log_payloads()))
     register_tools(oauth_mcp)
     return oauth_mcp
 
@@ -80,7 +89,7 @@ def get_header_mcp():
             required_scopes=["read", "write"],
         ),
     )
-    header_mcp.add_middleware(PlaneLoggingMiddleware(include_payloads=True))
+    header_mcp.add_middleware(PlaneLoggingMiddleware(include_payloads=log_payloads()))
     register_tools(header_mcp)
     return header_mcp
 
@@ -90,7 +99,7 @@ def get_stdio_mcp():
         "plane-ce-mcp (stdio)",
         instructions=SERVER_INSTRUCTIONS,
     )
-    stdio_mcp.add_middleware(PlaneLoggingMiddleware(include_payloads=True))
+    stdio_mcp.add_middleware(PlaneLoggingMiddleware(include_payloads=log_payloads()))
     register_tools(stdio_mcp)
     return stdio_mcp
 
@@ -111,7 +120,7 @@ def get_readonly_header_mcp():
             required_scopes=["read", "write"],
         ),
     )
-    readonly_mcp.add_middleware(PlaneLoggingMiddleware(include_payloads=True))
+    readonly_mcp.add_middleware(PlaneLoggingMiddleware(include_payloads=log_payloads()))
     register_tools(readonly_mcp)
     for tool in asyncio.run(readonly_mcp.list_tools(run_middleware=False)):
         if not is_read_only(tool.annotations):
