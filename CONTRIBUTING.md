@@ -1,125 +1,59 @@
-# Contributing to Plane MCP Server
+# Contributing to plane-ce-mcp
 
-Thank you for showing an interest in contributing to Plane MCP Server! All kinds of contributions are valuable to us. In this guide, we will cover how you can quickly onboard and make your first contribution.
+Thanks for your interest in contributing! This is an unofficial, community-maintained
+MCP server for self-hosted Plane (Community Edition).
 
-## Submitting an issue
+## Reporting issues
 
-Before submitting a new issue, please search the [issues](https://github.com/makeplane/plane-mcp-server/issues) tab. Maybe an issue or discussion already exists and might inform you of workarounds. Otherwise, you can give new information.
+Before opening a new issue, search the
+[issues](https://github.com/Bl4nk44/plane-ce-mcp/issues) tab — it may already be
+known. When reporting a bug, include:
 
-While we want to fix all the [issues](https://github.com/makeplane/plane-mcp-server/issues), before fixing a bug we need to be able to reproduce and confirm it. Please provide us with a minimal reproduction scenario. Having a live, reproducible scenario gives us the information without asking questions back & forth with additional questions like:
+- Your Plane edition and version (`get_instance_info` tool output helps)
+- The transport used (stdio / HTTP PAT / OAuth)
+- The exact tool call and the error message returned
+- A minimal reproduction where possible
 
-- Python version and OS
-- MCP client being used (Claude Desktop, etc.)
-- Transport method (stdio, HTTP, SSE)
-- A use-case that fails
+Self-hosted CE quirks are the core focus of this project — reports of endpoints that
+behave differently on CE vs what the SDK expects are especially valuable.
 
-Without said minimal reproduction, we won't be able to investigate all [issues](https://github.com/makeplane/plane-mcp-server/issues), and the issue might not be resolved.
-
-You can open a new issue with this [issue form](https://github.com/makeplane/plane-mcp-server/issues/new).
-
-### Naming conventions for issues
-
-When opening a new issue, please use a clear and concise title that follows this format:
-
-- For bugs: `Bug: [short description]`
-- For features: `Feature: [short description]`
-- For improvements: `Improvement: [short description]`
-- For documentation: `Docs: [short description]`
-
-**Examples:**
-
-- `Bug: OAuth token refresh fails with Redis backend`
-- `Feature: Add support for custom fields in work items`
-- `Improvement: Better error messages for missing environment variables`
-- `Docs: Clarify PAT token setup for HTTP transport`
-
-This helps us triage and manage issues more efficiently.
-
-## Project setup
-
-### Requirements
-
-- Python 3.10+
-- [uv](https://docs.astral.sh/uv/) (fast Python package installer)
-- A Plane instance (cloud or self-hosted) with an API key for testing
-
-### Setup the project
-
-1. Clone the repo
+## Development setup
 
 ```bash
-git clone https://github.com/makeplane/plane-mcp-server.git
-cd plane-mcp-server
-```
-
-2. Install dependencies
-
-```bash
+git clone https://github.com/Bl4nk44/plane-ce-mcp.git
+cd plane-ce-mcp
 uv pip install -e ".[dev]"
 ```
 
-3. Configure environment variables
+Run the server locally:
 
 ```bash
-cp .env.test .env.test.local
-# Edit .env.test.local with your Plane API credentials
+PLANE_API_KEY=... PLANE_WORKSPACE_SLUG=... PLANE_BASE_URL=... python -m plane_mcp stdio
 ```
 
-4. Run the server locally (stdio mode)
+## Before submitting a PR
 
-```bash
-PLANE_API_KEY="your-api-key" PLANE_WORKSPACE_SLUG="your-workspace" python -m plane_mcp stdio
-```
+1. `ruff format plane_mcp/` and `ruff check plane_mcp/` pass (line length 120).
+2. `pytest` passes. Integration tests need a live Plane instance — see
+   `.env.test` and [docs/self-host-testing.md](docs/self-host-testing.md).
+3. Tool changes were exercised against a self-hosted CE instance
+   (checklist: [docs/self-host-testing.md](docs/self-host-testing.md)).
+4. Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/)
+   (`feat(scope):`, `fix(scope):`, `docs:`, ...).
+5. Keep PRs small and focused — one logical change per PR.
 
-5. Run the tests
+## Rules for new or modified tools
 
-```bash
-export $(cat .env.test.local | xargs) && pytest tests/ -v
-```
+- Follow the existing tool pattern: one domain per module in `plane_mcp/tools/`,
+  registered via `register_*_tools` in `tools/__init__.py`.
+- Every tool must handle 404 / 401 / 403 / timeouts through the compat layer
+  (`plane_mcp/compat.py`) — never let a raw SDK exception reach the MCP client.
+- Endpoint differences between Plane versions are handled centrally, not with
+  per-tool hacks — see [docs/plane-api-compat.md](docs/plane-api-compat.md).
+- New tool = docstring with Args/Returns + entry in the README tool tables.
+- Do not change existing tool signatures without a fallback path — MCP clients
+  depend on them.
 
-## Missing a Feature?
+## Questions
 
-If a feature is missing, you can directly _request_ a new one [here](https://github.com/makeplane/plane-mcp-server/issues/new). If you would like to _implement_ it, an issue with your proposal must be submitted first, to be sure that we can use it. Please consider the guidelines given below.
-
-## Coding guidelines
-
-To ensure consistency throughout the source code, please keep these rules in mind as you are working:
-
-- All features or bug fixes must be tested by one or more specs (unit-tests).
-- We format with [Black](https://black.readthedocs.io/) (line length: 100) and lint with [Ruff](https://docs.astral.sh/ruff/) (rules: E, F, I, UP, B; line length: 100).
-- Use Python 3.10+ union syntax (`str | None` instead of `Optional[str]`).
-- Tool functions must follow the existing pattern: use `@mcp.tool()` decorator, accept typed parameters, and return Pydantic models from `plane-sdk`.
-- Include docstrings with `Args` and `Returns` sections for all new tools.
-
-### Adding a new tool
-
-1. Create or update a module in `plane_mcp/tools/` following the existing domain organization.
-2. Implement a `register_*_tools(mcp: FastMCP)` function.
-3. Register it in `plane_mcp/tools/__init__.py`.
-4. Add tests covering the new tool.
-
-### Running checks
-
-```bash
-# Format
-black plane_mcp/
-
-# Lint
-ruff check plane_mcp/
-
-# Test
-pytest
-```
-
-## Ways to contribute
-
-- Try the Plane MCP Server with different MCP clients and give feedback
-- Help with open [issues](https://github.com/makeplane/plane-mcp-server/issues) or [create your own](https://github.com/makeplane/plane-mcp-server/issues/new)
-- Add new tools for Plane API endpoints
-- Improve existing tool documentation and descriptions
-- Report bugs
-- Propose features
-
-## Need help? Questions and suggestions
-
-Questions, suggestions, and thoughts are most welcome. We can also be reached on our [community forum](https://forum.plane.so).
+Open a [discussion or issue](https://github.com/Bl4nk44/plane-ce-mcp/issues) on GitHub.
