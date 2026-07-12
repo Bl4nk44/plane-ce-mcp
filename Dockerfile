@@ -26,6 +26,10 @@ EXPOSE 8211
 # Set environment variables with defaults
 ENV FASTMCP_PORT=8211
 
+# Liveness probe against the unauthenticated /healthz route (http transport).
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD curl -fsS http://localhost:8211/healthz || exit 1
+
 # Default to streamable-http transport, but allow override via command
 # Users can override by passing different transport as CMD
 ENTRYPOINT ["python", "-m", "plane_mcp"]

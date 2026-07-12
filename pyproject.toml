@@ -17,12 +17,20 @@ dependencies = [
     "plane-sdk==0.2.19",
     "py-key-value-aio[redis]>=0.4.4,<0.5.0",
     "mcp==1.26.0",
-    "PyJWT>=2.12.0",
+    "PyJWT>=2.13.0",  # <2.13.0 has GHSA-xgmm-8j9v-c9wx (High) + 4 other CVEs
     "authlib>=1.6.9",
     "boto3>=1.34.0",
     # pydocket 0.16.6 (pinned by fastmcp 2.14.4) imports `FakeConnection` from
     # `fakeredis.aioredis`, which was removed in fakeredis 2.35.0.
     "fakeredis[lua]>=2.32.1,<2.35.0",
+]
+
+[tool.uv]
+# Transitive deps pulled by fastmcp/starlette that ship known CVEs; force patched
+# versions until the parents raise their floors. Reviewed 2026-07-12 (osv-scanner).
+constraint-dependencies = [
+    "python-multipart>=0.0.31",  # GHSA-5rvq-cxj2-64vf (High) + 3 others
+    "pydantic-settings>=2.14.2",  # GHSA-4xgf-cpjx-pc3j
 ]
 
 [project.urls]

@@ -73,3 +73,14 @@ jobs:
         run: >-
           pytest tests/ --ignore=tests/test_integration.py -v
           --cov=plane_mcp --cov-report=term-missing --cov-fail-under=53
+
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Scan dependencies for known CVEs
+        uses: google/osv-scanner-action/osv-scanner-action@v2.3.8
+        with:
+          scan-args: |-
+            --lockfile=uv.lock

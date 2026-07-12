@@ -144,6 +144,7 @@ recipes (Docker Compose, Caddy, Tailscale) live in [deploy/](deploy/) and
 | `PLANE_OAUTH_PROVIDER_*` | http/sse OAuth only | OAuth client credentials and base URL |
 | `PLANE_OAUTH_ALLOWED_REDIRECT_URIS` | http/sse OAuth (optional) | Comma-separated redirect URI patterns appended to the built-in allowlist |
 | `LOG_USER_INFO` | optional (default: `false`) | When `true`, include user display name (PII) in logs alongside the opaque user id |
+| `LOG_PAYLOADS` | optional (default: `false`) | When `true`, include tool-call payloads (may contain PII / full descriptions) in structured logs. Off by default; enable only for debugging. |
 
 ### Logging
 
@@ -151,6 +152,13 @@ The server emits structured JSON logs. Each tool call is logged with its tool na
 duration, status, and (when available) the opaque user id and workspace slug.
 Endpoint fallbacks are logged when they trigger (which endpoint failed, which was
 used instead), so CE quirks are diagnosable from logs.
+
+### Health check
+
+In HTTP mode the server exposes an unauthenticated `GET /healthz` returning
+`{"status": "ok", "server_version": ...}`. It reports the server's own liveness
+and does not call Plane, so a Plane outage never marks the MCP server unhealthy.
+The Docker image ships a `HEALTHCHECK` against it.
 
 ## Available Tools
 

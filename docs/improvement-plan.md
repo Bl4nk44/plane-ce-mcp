@@ -56,11 +56,17 @@ Gaps found:
   call-signature false positives; job runs `continue-on-error` until triaged.
   New modules (retry/response/annotations) are pyright-clean.
 
-## Stage 3 - Security / ops
+## Stage 3 - Security / ops (done)
 
-- **3.1** `LOG_PAYLOADS` env (default false); PII audit of logs.
-- **3.2** `/healthz` endpoint + Docker `HEALTHCHECK`; server version in `get_instance_info`.
-- **3.3** Dependency audit: verify fakeredis pin, add `osv-scanner` to CI.
+- **3.1** `LOG_PAYLOADS` env - DONE. Payloads OFF by default (were hardcoded on);
+  gated in `server.log_payloads()`.
+- **3.2** Health + version - DONE. Unauthenticated `GET /healthz` in HTTP mode
+  (liveness only, never calls Plane), Docker `HEALTHCHECK`, `__version__` exposed
+  and reported in `get_instance_info` as `server_version`.
+- **3.3** Dependency audit - DONE. Bumped pyjwt 2.12.1->2.13.0 (High CVE),
+  python-multipart ->0.0.32, pydantic-settings ->2.14.2 (transitive, via
+  `[tool.uv] constraint-dependencies`). osv-scanner reports 0 vulns; added an
+  `audit` job to CI running osv-scanner on every push/PR.
 
 ## Stage 4 - DX / distribution
 

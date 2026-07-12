@@ -12,9 +12,23 @@ import uvicorn
 from fastmcp.server.dependencies import get_access_token
 from starlette.applications import Starlette
 from starlette.middleware.cors import CORSMiddleware
-from starlette.routing import Mount
+from starlette.requests import Request
+from starlette.responses import JSONResponse
+from starlette.routing import Mount, Route
 
+from plane_mcp import __version__
 from plane_mcp.server import get_header_mcp, get_oauth_mcp, get_readonly_header_mcp, get_stdio_mcp
+
+
+def _healthz(_request: Request) -> JSONResponse:
+    """Liveness probe: 200 as soon as the HTTP app is serving. Does not call
+    Plane (so a Plane outage never marks the MCP server itself unhealthy)."""
+    return JSONResponse({"status": "ok", "server_version": __version__})
+
+
+def _health_route() -> Route:
+    return Route("/healthz", _healthz, methods=["GET"])
+
 
 LOG_USER_INFO: bool = os.getenv("LOG_USER_INFO", "").lower() == "true"
 
@@ -152,6 +166,7 @@ def _build_http_app(prefix: str) -> Starlette:
         )
         return Starlette(
             routes=[
+                _health_route(),
                 Mount(prefix + "/http/api-key-readonly", app=readonly_app),
                 Mount(prefix + "/http/api-key", app=header_app),
             ],
@@ -172,6 +187,7 @@ def _build_http_app(prefix: str) -> Starlette:
 
     return Starlette(
         routes=[
+            _health_route(),
             # Well-known routes for OAuth and Header HTTP
             *oauth_well_known,
             *sse_well_known,

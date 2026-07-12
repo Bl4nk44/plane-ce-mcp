@@ -322,12 +322,15 @@ def fetch_instance_profile(base_url: str) -> dict[str, Any]:
 
 def describe_instance(base_url: str) -> dict[str, Any]:
     """Instance profile plus known API limitations, for diagnostics tools."""
+    from plane_mcp import __version__ as server_version
+
     profile = fetch_instance_profile(base_url)
     edition = profile["edition"]
     info: dict[str, Any] = {
         "base_url": base_url,
         "edition": edition,
         "version": profile["version"],
+        "server_version": server_version,
         "compat_reference": COMPAT_DOC,
     }
     if edition == "PLANE_COMMUNITY":
