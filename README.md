@@ -1,14 +1,17 @@
 # plane-ce-mcp
 
-[![CI](https://github.com/Bl4nk44/plane-ce-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/Bl4nk44/plane-ce-mcp/actions/workflows/ci.yml)
-[![Security](https://github.com/Bl4nk44/plane-ce-mcp/actions/workflows/security.yml/badge.svg)](https://github.com/Bl4nk44/plane-ce-mcp/actions/workflows/security.yml)
-[![PyPI](https://img.shields.io/pypi/v/plane-ce-mcp)](https://pypi.org/project/plane-ce-mcp/)
-[![Python](https://img.shields.io/pypi/pyversions/plane-ce-mcp)](https://pypi.org/project/plane-ce-mcp/)
-[![Docker](https://img.shields.io/badge/ghcr.io-plane--ce--mcp-blue?logo=docker)](https://github.com/Bl4nk44/plane-ce-mcp/pkgs/container/plane-ce-mcp)
-[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![security: semgrep](https://img.shields.io/badge/security-semgrep-brightgreen)](https://semgrep.dev)
-[![security: trivy](https://img.shields.io/badge/security-trivy-brightgreen)](https://trivy.dev)
-[![security: osv--scanner](https://img.shields.io/badge/security-osv--scanner-brightgreen)](https://google.github.io/osv-scanner/)
+<p align="center">
+  <a href="https://github.com/Bl4nk44/plane-ce-mcp/actions/workflows/ci.yml"><img src="https://github.com/Bl4nk44/plane-ce-mcp/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/Bl4nk44/plane-ce-mcp/actions/workflows/security.yml"><img src="https://github.com/Bl4nk44/plane-ce-mcp/actions/workflows/security.yml/badge.svg" alt="Security"></a>
+  <a href="https://pypi.org/project/plane-ce-mcp/"><img src="https://img.shields.io/pypi/v/plane-ce-mcp" alt="PyPI"></a>
+  <a href="https://pypi.org/project/plane-ce-mcp/"><img src="https://img.shields.io/badge/python-3.10%2B-blue" alt="Python 3.10+"></a>
+  <a href="https://github.com/Bl4nk44/plane-ce-mcp/pkgs/container/plane-ce-mcp"><img src="https://img.shields.io/badge/ghcr.io-plane--ce--mcp-blue?logo=docker" alt="Docker"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License: MIT"></a>
+  <br>
+  <a href="https://semgrep.dev"><img src="https://img.shields.io/badge/security-semgrep-brightgreen" alt="security: semgrep"></a>
+  <a href="https://trivy.dev"><img src="https://img.shields.io/badge/security-trivy-brightgreen" alt="security: trivy"></a>
+  <a href="https://google.github.io/osv-scanner/"><img src="https://img.shields.io/badge/security-osv--scanner-brightgreen" alt="security: osv-scanner"></a>
+</p>
 
 **Unofficial MCP server for self-hosted Plane (Community Edition).**
 
