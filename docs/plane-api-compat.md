@@ -2,6 +2,8 @@
 
 Living document. Record every self-host vs Cloud difference discovered here, with the
 Plane version it applies to. Tools must consult this before assuming an endpoint exists.
+Since the rebrand to plane-ce-mcp, self-host CE is the only supported target — the
+Cloud column stays as historical/comparison reference, not a maintained target.
 
 ## Environments
 

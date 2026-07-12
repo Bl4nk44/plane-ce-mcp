@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Plane MCP Server — a Python-based Model Context Protocol server that exposes Plane's project management API as MCP tools. Built on FastMCP with the official `plane-sdk`. Supports three transport modes: stdio (local), HTTP (with OAuth or header auth), and SSE (legacy).
+plane-ce-mcp — an unofficial Python-based Model Context Protocol server that exposes Plane's project management API as MCP tools, targeting **self-hosted Plane (Community Edition)**. Built on FastMCP with the official `plane-sdk`. Supports three transport modes: stdio (local), HTTP (with OAuth or header auth), and SSE (legacy).
 
 ## Common Commands
 
@@ -89,9 +89,9 @@ Integration tests in `tests/test_integration.py` use `FastMCP.Client` with `Stre
 | `PLANE_OAUTH_ALLOWED_REDIRECT_URIS` | http/sse OAuth (optional) | Comma-separated redirect URI patterns appended to the built-in allowlist (onboard clients without a release) |
 | `LOG_USER_INFO` | all (optional, default: false) | When `true`, include user info (PII such as display name) in logs alongside the opaque user id |
 
-## Fork Mission
+## Project Mission
 
-This repository is a fork of `makeplane/plane-mcp-server` (remote: `upstream`). Its purpose is to make the MCP server work reliably against a **self-hosted Plane instance (Community Edition, Docker)** while remaining compatible with Plane Cloud.
+This is a standalone, unofficial project (originally forked from `makeplane/plane-mcp-server`, MIT — remote `upstream` kept for cherry-picks). Its purpose is to make the MCP server work reliably against a **self-hosted Plane instance (Community Edition, Docker)**. Plane Cloud is out of scope: Cloud code paths stay in place but are untested and unadvertised.
 
 **Current phase: self-host stabilization.** Priorities, in order:
 1. Critical daily-use tools work against self-host: work items (create/update/list), projects, cycles, modules, states, labels.
@@ -117,13 +117,11 @@ The full staged plan lives in `docs/roadmap.md`. Manual verification checklist: 
 - Do NOT add dependencies without justification; pin exact versions for anything security-relevant.
 - Do NOT rely on Cloud-only endpoints or features without a capability check or documented fallback.
 - Do NOT merge tool changes that were not exercised against the local self-host Plane (checklist in `docs/self-host-testing.md`).
-- Do NOT edit upstream-owned sections of this file heavily — fork-specific guidance goes below "Fork Mission" to keep upstream syncs mergeable.
+## Upstream Cherry-Picks
 
-## Upstream Sync
-
-- Remote `upstream` = `makeplane/plane-mcp-server`. Review upstream changes roughly monthly: `git fetch upstream && git log --oneline main..upstream/main`.
-- Merge selectively; run the self-host test checklist after every sync.
-- Fixes that are general (not self-host-specific hacks) should be offered upstream as PRs.
+- Remote `upstream` = `makeplane/plane-mcp-server`. Review upstream changes occasionally: `git fetch upstream && git log --oneline main..upstream/main`.
+- Cherry-pick generally useful fixes selectively (no wholesale merges — histories have diverged); run the self-host test checklist after every pick.
+- Offering general fixes upstream as PRs is optional.
 
 ## Session Memory (memorygraph MCP — use actively)
 

@@ -1,8 +1,16 @@
-# Roadmap — Plane MCP Server Fork (self-host stabilization)
+# Roadmap — plane-ce-mcp (self-host stabilization)
 
-Goal: a fork of `makeplane/plane-mcp-server` that "always works" against a self-hosted
-Plane (Community Edition, Docker) and stays Cloud-compatible. Stages below are a
-checklist; keep it updated as work lands.
+Goal: an unofficial, standalone MCP server (origin: `makeplane/plane-mcp-server`, MIT)
+that "always works" against a self-hosted Plane (Community Edition, Docker).
+Plane Cloud is out of scope — Cloud code paths remain but are untested/unmaintained.
+Stages below are a checklist; keep it updated as work lands.
+
+## Stage R — Rebrand (2026-07-12)
+- [x] Detached from upstream: fresh repo `Bl4nk44/plane-ce-mcp`, mirror-pushed.
+- [x] R1 metadata (pyproject → plane-ce-mcp 1.0.0, LICENSE, glama.json removed).
+- [x] R2 README rewrite (self-host-first). R3 community files. R4 CLAUDE.md/docs.
+- [ ] R5 server.py branding. R6 verification + tag v1.0.0 + delete old fork.
+- Full plan: `docs/rebrand-plan.md`. Cloud-compat roadmap items now out of scope.
 
 ## Stage 1 — Project & requirements audit
 - [x] Identify stack: Python 3.10+, FastMCP 3.2.0, plane-sdk 0.2.19, uv, Docker.
