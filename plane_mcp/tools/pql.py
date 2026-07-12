@@ -10,6 +10,17 @@ from plane_mcp.tools.pql_reference import PQL_FIELD_DESCRIPTION, PQL_FULL_REFERE
 
 
 def register_pql_tools(mcp: FastMCP) -> None:
+    @mcp.resource(
+        "resource://pql-reference",
+        name="Plane Query Language (PQL) reference",
+        description="Full PQL syntax for the `pql` filter on work-item list/count tools.",
+        mime_type="text/markdown",
+    )
+    def pql_reference_resource() -> str:
+        """Expose the full PQL reference as an attachable MCP resource, so a
+        client can load it into context without spending a tool call."""
+        return PQL_FULL_REFERENCE
+
     @mcp.tool()
     def get_pql_reference(detail: Literal["brief", "full"] = "full") -> dict:
         """

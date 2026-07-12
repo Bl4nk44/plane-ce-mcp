@@ -68,9 +68,17 @@ Gaps found:
   `[tool.uv] constraint-dependencies`). osv-scanner reports 0 vulns; added an
   `audit` job to CI running osv-scanner on every push/PR.
 
-## Stage 4 - DX / distribution
+## Stage 4 - DX / distribution (done)
 
-- **4.1** Expand `SERVER_INSTRUCTIONS` (pagination, PQL quickstart, common flows).
-  PQL reference as an MCP resource rather than a tool.
-- **4.2** Script generating README tool tables from the registry + CI drift check.
-- **4.3** Release: PyPI (`uvx plane-ce-mcp`), ghcr.io image, CHANGELOG, MCP registry entry.
+- **4.1** Instructions - DONE. `SERVER_INSTRUCTIONS` covers orientation
+  (get_instance_info/list_toolsets), name->UUID resolution, pagination + sparse
+  fields, PQL pointers and the epics flow.
+- **4.2** PQL resource - DONE. Full reference exposed as `resource://pql-reference`
+  (markdown) alongside the `get_pql_reference` tool.
+- **4.3** README sync - DONE (as a checker, not a generator: the tables carry
+  curated descriptions worth keeping). `scripts/check_tool_docs.py` enforces
+  registered == documented; wired into CI. All 142 tools documented.
+- **4.4** Release - DONE. CHANGELOG.md added, version bumped to 1.1.0, upstream
+  Docker Hub workflow replaced with a ghcr.io publish workflow (v* tags,
+  GITHUB_TOKEN, amd64+arm64). PyPI publish workflow already existed
+  (workflow_dispatch). TODO: MCP registry entry once published.
