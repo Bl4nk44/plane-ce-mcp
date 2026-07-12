@@ -6,7 +6,6 @@ import asyncio
 import os
 
 from fastmcp import FastMCP
-from mcp.types import Icon
 
 from plane_mcp.auth import PlaneHeaderAuthProvider, PlaneOAuthProvider
 from plane_mcp.instructions import SERVER_INSTRUCTIONS
@@ -52,10 +51,9 @@ def get_allowed_client_redirect_uris() -> list[str]:
 def get_oauth_mcp(base_path: str = "/") -> FastMCP:
     """Build the FastMCP instance for the OAuth HTTP / SSE transports."""
     oauth_mcp = FastMCP(
-        "Plane MCP Server",
+        "plane-ce-mcp",
         instructions=SERVER_INSTRUCTIONS,
-        icons=[Icon(src="https://plane.so/favicon.ico", alt="Plane MCP Server")],
-        website_url="https://plane.so",
+        website_url="https://github.com/Bl4nk44/plane-ce-mcp",
         auth=PlaneOAuthProvider(
             client_id=os.getenv("PLANE_OAUTH_PROVIDER_CLIENT_ID", ""),
             client_secret=os.getenv("PLANE_OAUTH_PROVIDER_CLIENT_SECRET", ""),
@@ -75,7 +73,7 @@ def get_oauth_mcp(base_path: str = "/") -> FastMCP:
 
 def get_header_mcp():
     header_mcp = FastMCP(
-        "Plane MCP Server (header-http)",
+        "plane-ce-mcp (header-http)",
         instructions=SERVER_INSTRUCTIONS,
         auth=PlaneHeaderAuthProvider(
             required_scopes=["read", "write"],
@@ -88,7 +86,7 @@ def get_header_mcp():
 
 def get_stdio_mcp():
     stdio_mcp = FastMCP(
-        "Plane MCP Server (stdio)",
+        "plane-ce-mcp (stdio)",
         instructions=SERVER_INSTRUCTIONS,
     )
     stdio_mcp.add_middleware(PlaneLoggingMiddleware(include_payloads=True))
@@ -110,7 +108,7 @@ def get_readonly_header_mcp():
     PAT, so every non-read tool is removed after registration.
     """
     readonly_mcp = FastMCP(
-        "Plane MCP Server (read-only)",
+        "plane-ce-mcp (read-only)",
         instructions=SERVER_INSTRUCTIONS,
         auth=PlaneHeaderAuthProvider(
             required_scopes=["read", "write"],
