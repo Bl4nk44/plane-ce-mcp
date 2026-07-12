@@ -83,6 +83,8 @@ Integration tests in `tests/test_integration.py` use `FastMCP.Client` with `Stre
 | `PLANE_API_KEY` | stdio | API key for authentication |
 | `PLANE_WORKSPACE_SLUG` | stdio | Target workspace |
 | `PLANE_BASE_URL` | all (default: https://api.plane.so) | Plane API URL |
+| `PLANE_TOOLSETS` | all (optional, default: all) | Comma-separated tool groups to register (`core,comments,pages,types,planning,admin,pql` or `all`). Fewer tools = smaller client context. Registry in `tools/__init__.py`; annotations in `annotations.py` |
+| `PLANE_MAX_RESPONSE_KB` | all (optional, default: 1024) | Response-size cap for list tools (`response.py`); over the limit returns an actionable error instead of the payload. `0` disables |
 | `PLANE_INTERNAL_BASE_URL` | http/sse (optional) | Internal URL for server-to-server calls |
 | `REDIS_HOST` / `REDIS_PORT` | http/sse (optional) | Token storage (falls back to in-memory) |
 | `PLANE_OAUTH_PROVIDER_*` | http/sse OAuth | OAuth client credentials and base URL |

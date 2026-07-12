@@ -7,6 +7,7 @@ import os
 
 from fastmcp import FastMCP
 
+from plane_mcp.annotations import is_read_only
 from plane_mcp.auth import PlaneHeaderAuthProvider, PlaneOAuthProvider
 from plane_mcp.instructions import SERVER_INSTRUCTIONS
 from plane_mcp.middleware import PlaneLoggingMiddleware
@@ -94,18 +95,14 @@ def get_stdio_mcp():
     return stdio_mcp
 
 
-# Tool-name prefixes considered read-only. Everything else is stripped from the
-# read-only endpoint. Note: resolve_* is deliberately NOT read-only - the
-# resolve_work_item_type tool creates the type when it does not exist.
-READONLY_TOOL_PREFIXES = ("list_", "retrieve_", "get_", "count_", "search_", "read_")
-
-
 def get_readonly_header_mcp():
     """Header-auth FastMCP exposing only read-only tools.
 
     Public surface for external agents (Perplexity et al., roadmap E13.4):
     a chat connector must not be able to mutate Plane data even with a valid
-    PAT, so every non-read tool is removed after registration.
+    PAT, so every non-read tool is removed after registration. "Read-only" is
+    driven by the readOnlyHint tool annotation (see plane_mcp.annotations), the
+    same signal MCP clients see - one source of truth, no separate prefix list.
     """
     readonly_mcp = FastMCP(
         "plane-ce-mcp (read-only)",
@@ -117,6 +114,6 @@ def get_readonly_header_mcp():
     readonly_mcp.add_middleware(PlaneLoggingMiddleware(include_payloads=True))
     register_tools(readonly_mcp)
     for tool in asyncio.run(readonly_mcp.list_tools(run_middleware=False)):
-        if not tool.name.startswith(READONLY_TOOL_PREFIXES):
+        if not is_read_only(tool.annotations):
             readonly_mcp.remove_tool(tool.name)
     return readonly_mcp

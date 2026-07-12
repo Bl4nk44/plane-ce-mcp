@@ -26,3 +26,25 @@ def register_instance_tools(mcp: FastMCP) -> None:
         """
         base_url = os.getenv("PLANE_INTERNAL_BASE_URL") or os.getenv("PLANE_BASE_URL", "https://api.plane.so")
         return describe_instance(base_url)
+
+    @mcp.tool()
+    def list_toolsets() -> dict[str, Any]:
+        """
+        List the tool groups (toolsets) this server knows and which are active.
+
+        Toolsets are selected with the PLANE_TOOLSETS env var (comma-separated,
+        or "all"). A client that only needs a subset can set it to load fewer
+        tool definitions into its context window.
+
+        Returns:
+            Dict with `active` (toolset names currently registered) and
+            `available` (every toolset name the server supports).
+        """
+        # Imported lazily to avoid a circular import with plane_mcp.tools.
+        from plane_mcp.tools import TOOLSETS, resolve_toolsets
+
+        return {
+            "active": resolve_toolsets(),
+            "available": list(TOOLSETS),
+            "selector_env": "PLANE_TOOLSETS",
+        }

@@ -135,6 +135,8 @@ recipes (Docker Compose, Caddy, Tailscale) live in [deploy/](deploy/) and
 | `PLANE_WORKSPACE_SLUG` | stdio | Target workspace |
 | `PLANE_INTERNAL_BASE_URL` | http/sse (optional) | Internal URL for server-to-server calls (e.g. `http://plane-api:8000` inside Docker) |
 | `PLANE_INTERNAL_API_EMAIL` / `PLANE_INTERNAL_API_PASSWORD` | pages tools | Plane account used by the internal-API adapter (CE has no public pages API); the account needs membership in the relevant projects |
+| `PLANE_TOOLSETS` | optional (default: `all`) | Comma-separated tool groups to register: `core,comments,pages,types,planning,admin,pql` (or `all`). Loads fewer tool definitions into the client's context - e.g. `core` is the daily-driver set (~64 tools vs ~142). Call `list_toolsets` to see active/available groups. |
+| `PLANE_MAX_RESPONSE_KB` | optional (default: `1024`) | Size cap for `list_work_items` / `list_archived_work_items` responses. Over the limit the tool returns an actionable error instead of the payload, to protect the client's context window. `0` disables. |
 | `PLANE_PAGES_MAX_CONTENT_LENGTH` | optional | Default truncation for `retrieve_page` content |
 | `REDIS_HOST` / `REDIS_PORT` | http/sse (optional) | Token storage (falls back to in-memory) |
 | `PLANE_OAUTH_PROVIDER_*` | http/sse OAuth only | OAuth client credentials and base URL |
