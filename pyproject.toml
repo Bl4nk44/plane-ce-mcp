@@ -1,15 +1,16 @@
 [project]
-name = "plane-mcp-server"
-version = "0.2.10"
-description = "A Model Context Protocol server for Plane integration"
+name = "plane-ce-mcp"
+version = "1.0.0"
+description = "Unofficial MCP server for self-hosted Plane (Community Edition)"
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "MIT"}
 authors = [
-    {name= "Surya Prashanth", email = "surya.prashanth@plane.so"},
-    {name = "Plane Engineering", email = "support@plane.so"}
+    {name = "Bl4nk44"},
 ]
-keywords = ["mcp", "plane", "fastmcp", "ai", "automation"]
+# Original authors (upstream makeplane/plane-mcp-server):
+#   Surya Prashanth <surya.prashanth@plane.so>, Plane Engineering <support@plane.so>
+keywords = ["mcp", "plane", "self-hosted", "community-edition", "fastmcp", "ai", "automation"]
 
 dependencies = [
     "fastmcp==3.2.0",
@@ -24,6 +25,11 @@ dependencies = [
     "fakeredis[lua]>=2.32.1,<2.35.0",
 ]
 
+[project.urls]
+Homepage = "https://github.com/Bl4nk44/plane-ce-mcp"
+Repository = "https://github.com/Bl4nk44/plane-ce-mcp"
+Issues = "https://github.com/Bl4nk44/plane-ce-mcp/issues"
+
 [project.optional-dependencies]
 dev = [
     "pytest>=7.0.0",
@@ -31,6 +37,8 @@ dev = [
 ]
 
 [project.scripts]
+plane-ce-mcp = "plane_mcp.__main__:main"
+# Legacy alias kept so existing MCP client configs keep working
 plane-mcp-server = "plane_mcp.__main__:main"
 
 [build-system]
