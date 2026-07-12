@@ -1,95 +1,79 @@
-# Plane MCP Server
+# plane-ce-mcp
 
-A Model Context Protocol (MCP) server for Plane integration. This server provides tools and resources for interacting with Plane through AI agents.
+**Unofficial MCP server for self-hosted Plane (Community Edition).**
 
-> **Fork note — self-host stabilized.** This fork of
-> [makeplane/plane-mcp-server](https://github.com/makeplane/plane-mcp-server) targets
-> **self-hosted Plane (Community Edition, Docker)** while staying Cloud-compatible:
->
-> * Central compatibility layer (`plane_mcp/compat.py`): every Plane API error becomes
->   an actionable message (missing endpoint vs missing resource vs auth vs timeout) —
->   no raw SDK exceptions reach the MCP client.
-> * Lite endpoints absent on CE transparently fall back to the full endpoints
->   (projects, cycles, modules, project/workspace members).
-> * HTTP mode runs without OAuth configuration — PAT header auth alone
->   (`/http/api-key/mcp`).
-> * CE vs Cloud API differences are catalogued in
->   [docs/plane-api-compat.md](docs/plane-api-compat.md).
+A Model Context Protocol server exposing Plane's project management API as MCP tools,
+built for people who run Plane themselves. Based on
+[makeplane/plane-mcp-server](https://github.com/makeplane/plane-mcp-server) (MIT).
+Not affiliated with Plane / makeplane.
 
-## Features
+## Why this exists
 
-* 🔧 **Plane Integration**: Interact with Plane APIs and services
-* 🔌 **Multiple Transports**: Supports stdio, SSE, and streamable HTTP transports
-* 🌐 **Remote & Local**: Works both locally and as a remote service
-* 🛠️ **Extensible**: Easy to add new tools and resources
+The upstream server targets Plane Cloud. Run it against a self-hosted Community
+Edition instance and you hit missing "lite" endpoints, raw SDK stack traces on every
+404, and no pages support. This project fixes what upstream didn't:
 
-## Usage
+* **Central compatibility layer** ([plane_mcp/compat.py](plane_mcp/compat.py)): every
+  Plane API error becomes an actionable message — missing endpoint vs missing resource
+  vs auth vs timeout. No raw SDK exceptions reach the MCP client.
+* **Transparent endpoint fallbacks**: lite endpoints absent on CE fall back to the
+  full endpoints (projects, cycles, modules, project/workspace members), with the
+  fallback logged for diagnosability.
+* **PAT-only HTTP mode**: the HTTP transport runs without any OAuth configuration —
+  header auth alone (`/http/api-key/mcp`).
+* **Pages tools on CE**: list/retrieve/search/create pages via Plane's internal API
+  (CE has no public pages API), with content truncation for LLM-sized outputs.
+* **Documented CE vs Cloud differences**: [docs/plane-api-compat.md](docs/plane-api-compat.md).
 
-The server supports three transport methods. **We recommend using `uvx`** as it doesn't require installation.
+May still work against Plane Cloud — untested, unmaintained, not a goal.
 
-**Requirements**:
-- **Python 3.10+** (for stdio transport, via `uvx`)
-- **Node.js 22+** (for remote transports, via `npx`)
+## Quick start (stdio)
 
-### 1. Stdio Transport (for local use)
+Requirements: **Python 3.10+** and [uv](https://docs.astral.sh/uv/).
 
-**MCP Client Configuration** (using uvx - recommended):
+**MCP client configuration:**
 
 ```json
 {
   "mcpServers": {
     "plane": {
       "command": "uvx",
-      "args": ["plane-mcp-server", "stdio"],
+      "args": ["--from", "git+https://github.com/Bl4nk44/plane-ce-mcp", "plane-ce-mcp", "stdio"],
       "env": {
         "PLANE_API_KEY": "<your-api-key>",
         "PLANE_WORKSPACE_SLUG": "<your-workspace-slug>",
-        "PLANE_BASE_URL": "https://api.plane.so"
+        "PLANE_BASE_URL": "https://plane.your-domain.tld"
       }
     }
   }
 }
 ```
 
-### 2. Remote HTTP Transport with OAuth
+`PLANE_BASE_URL` must point at your instance's API — the default is Plane Cloud
+(`https://api.plane.so`), so self-host setups **must** set it.
 
-Connect to the hosted Plane MCP server using OAuth authentication.
+## HTTP transport (self-hosted, PAT auth)
 
-**URL**: `https://mcp.plane.so/http/mcp`
+Run the server next to your Plane instance (port 8211):
 
-**MCP Client Configuration** (for tools like Claude Desktop without native remote MCP support):
-
-```json
-{
-  "mcpServers": {
-    "plane": {
-      "command": "npx",
-      "args": ["mcp-remote@latest", "https://mcp.plane.so/http/mcp"]
-    }
-  }
-}
+```bash
+PLANE_BASE_URL=https://plane.your-domain.tld python -m plane_mcp http
 ```
 
-**Note**: OAuth authentication will be handled automatically when connecting to the remote server.
+Connect with a Personal Access Token — no OAuth setup required:
 
-### 3. Remote HTTP Transport using PAT Token
-
-Connect to the hosted Plane MCP server using a Personal Access Token (PAT).
-
-**URL**: `https://mcp.plane.so/http/api-key/mcp`
+**URL**: `http://<server>:8211/http/api-key/mcp`
 
 **Headers**:
-- `Authorization: Bearer <PAT_TOKEN>`
+- `Authorization: Bearer <PAT_TOKEN>` (or `x-api-key: <PAT_TOKEN>`)
 - `X-Workspace-slug: <SLUG>`
-
-**MCP Client Configuration** (for tools like Claude Desktop without native remote MCP support):
 
 ```json
 {
   "mcpServers": {
     "plane": {
       "command": "npx",
-      "args": ["mcp-remote@latest", "https://mcp.plane.so/http/api-key/mcp"],
+      "args": ["mcp-remote@latest", "http://<server>:8211/http/api-key/mcp"],
       "headers": {
         "Authorization": "Bearer <PAT_TOKEN>",
         "X-Workspace-slug": "<SLUG>"
@@ -99,77 +83,36 @@ Connect to the hosted Plane MCP server using a Personal Access Token (PAT).
 }
 ```
 
-### 4. SSE Transport (Legacy)
-
-⚠️ **Legacy Transport**: SSE (Server-Sent Events) transport is maintained for backward compatibility. New implementations should use the HTTP transport (sections 2 or 3) instead.
-
-Connect to the hosted Plane MCP server using OAuth authentication via Server-Sent Events.
-
-**URL**: `https://mcp.plane.so/sse`
-
-**MCP Client Configuration** (for tools that support SSE transport):
-
-```json
-{
-  "mcpServers": {
-    "plane": {
-      "command": "npx",
-      "args": ["mcp-remote@latest", "https://mcp.plane.so/sse"]
-    }
-  }
-}
-```
-
-**Note**: OAuth authentication will be handled automatically when connecting to the remote server. This transport is deprecated in favor of the HTTP transport.
-
+An OAuth endpoint (`/oauth/mcp`) and a legacy SSE transport also exist for setups
+with a configured Plane OAuth app — see [Configuration](#configuration). Deployment
+recipes (Docker Compose, Caddy, Tailscale) live in [deploy/](deploy/) and
+[docs/tailscale-deployment.md](docs/tailscale-deployment.md).
 
 ## Configuration
 
-### Authentication
-
-The server requires authentication via environment variables:
-
-- `PLANE_BASE_URL`: Base URL for Plane API (default: `https://api.plane.so`) - Optional
-- `PLANE_API_KEY`: API key for authentication (required for stdio transport)
-- `PLANE_WORKSPACE_SLUG`: Workspace slug identifier (required for stdio transport)
-- `PLANE_ACCESS_TOKEN`: Access token for authentication (alternative to API key)
-
-**Example** (for stdio transport):
-```bash
-export PLANE_BASE_URL="https://api.plane.so"
-export PLANE_API_KEY="your-api-key"
-export PLANE_WORKSPACE_SLUG="your-workspace-slug"
-```
-
-**Note**: For remote HTTP transports (OAuth or PAT), authentication is handled via the connection method (OAuth flow or PAT headers) and does not require these environment variables.
-
-### OAuth redirect URIs
-
-For the OAuth HTTP/SSE transports, the server validates each client's redirect URI against an allowlist. Common MCP clients (Cursor, VS Code, Claude.ai, ChatGPT connectors, localhost) are allowed by default.
-
-To onboard a new client without a code change or release, append extra patterns via an environment variable:
-
-- `PLANE_OAUTH_ALLOWED_REDIRECT_URIS`: Comma-separated redirect URI patterns appended to the built-in allowlist.
-
-```bash
-export PLANE_OAUTH_ALLOWED_REDIRECT_URIS="https://newclient.com/cb,https://other.app/oauth/*"
-```
-
-Patterns support glob matching (`*` matches any port, path segment, or subdomain). For security, keep the host pinned and wildcard only the port/path.
+| Variable | Required for | Purpose |
+|---|---|---|
+| `PLANE_BASE_URL` | all (self-host: **required**) | Your Plane API URL (default: `https://api.plane.so` = Cloud) |
+| `PLANE_API_KEY` | stdio | API key (workspace settings → API tokens) |
+| `PLANE_WORKSPACE_SLUG` | stdio | Target workspace |
+| `PLANE_INTERNAL_BASE_URL` | http/sse (optional) | Internal URL for server-to-server calls (e.g. `http://plane-api:8000` inside Docker) |
+| `PLANE_INTERNAL_API_EMAIL` / `PLANE_INTERNAL_API_PASSWORD` | pages tools | Plane account used by the internal-API adapter (CE has no public pages API); the account needs membership in the relevant projects |
+| `PLANE_PAGES_MAX_CONTENT_LENGTH` | optional | Default truncation for `retrieve_page` content |
+| `REDIS_HOST` / `REDIS_PORT` | http/sse (optional) | Token storage (falls back to in-memory) |
+| `PLANE_OAUTH_PROVIDER_*` | http/sse OAuth only | OAuth client credentials and base URL |
+| `PLANE_OAUTH_ALLOWED_REDIRECT_URIS` | http/sse OAuth (optional) | Comma-separated redirect URI patterns appended to the built-in allowlist |
+| `LOG_USER_INFO` | optional (default: `false`) | When `true`, include user display name (PII) in logs alongside the opaque user id |
 
 ### Logging
 
-The server emits structured JSON logs. Each tool call is logged with its tool name, duration, status, and (when available) the opaque user id and workspace slug.
-
-- `LOG_USER_INFO`: When `true`, include user info (PII such as the display name) in logs alongside the opaque user id. Defaults to `false` so PII is never logged unless explicitly opted in. Only the OAuth and PAT (header) HTTP transports carry a display name; stdio is unaffected.
-
-```bash
-export LOG_USER_INFO="true"
-```
+The server emits structured JSON logs. Each tool call is logged with its tool name,
+duration, status, and (when available) the opaque user id and workspace slug.
+Endpoint fallbacks are logged when they trigger (which endpoint failed, which was
+used instead), so CE quirks are diagnosable from logs.
 
 ## Available Tools
 
-The server provides comprehensive tools for interacting with Plane. All tools use Pydantic models from the Plane SDK for type safety and validation.
+All tools use Pydantic models from the Plane SDK for type safety and validation.
 
 ### Projects
 
@@ -383,63 +326,31 @@ The server provides comprehensive tools for interacting with Plane. All tools us
 
 ## Development
 
-### Running Tests
-
 ```bash
+# Install (uses uv)
+uv pip install -e ".[dev]"
+
+# Tests
 pytest
-```
 
-### Code Formatting
-
-```bash
-black plane_mcp/
+# Format + lint
+ruff format plane_mcp/
 ruff check plane_mcp/
 ```
 
-## License
+Integration tests run against a live Plane instance — see
+[docs/self-host-testing.md](docs/self-host-testing.md) for the manual checklist.
 
-MIT License - see LICENSE for details.
+## Attribution & License
+
+MIT License — see [LICENSE](LICENSE).
+
+Based on [makeplane/plane-mcp-server](https://github.com/makeplane/plane-mcp-server)
+(MIT, © 2025 Plane MCP Server Contributors). This is an independent, unofficial
+project: not affiliated with, endorsed by, or supported by Plane / makeplane.
+"Plane" is a trademark of its respective owner.
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## Deprecation Notice
-
-⚠️ **The Node.js-based `plane-mcp-server` is deprecated and no longer maintained.**
-
-This repository represents the new Python+FastMCP based implementation of the Plane MCP server. If you were using the previous Node.js version, please migrate to this Python-based version for continued support and updates.
-
-The new implementation offers:
-- Better type safety with Pydantic models
-- Improved performance with FastMCP
-- Enhanced tool coverage
-- Active maintenance and development
-
-For migration assistance, please refer to the configuration examples in this README or open an issue for support.
-
-**Old Node.js Configuration (Deprecated):**
-
-If you were using the previous Node.js-based `@makeplane/plane-mcp-server`, your configuration looked like this:
-
-```json
-{
-  "mcpServers": {
-    "plane": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@makeplane/plane-mcp-server"
-      ],
-      "env": {
-        "PLANE_API_KEY": "<YOUR_API_KEY>",
-        "PLANE_API_HOST_URL": "<HOST_URL_FOR_SELF_HOSTED>",
-        "PLANE_WORKSPACE_SLUG": "<YOUR_WORKSPACE_SLUG>"
-      }
-    }
-  }
-}
-```
-
-**Please migrate to the new Python-based configuration shown in the Usage section above.**
-
+Contributions welcome — especially fixes for self-hosted Community Edition quirks.
+See [CONTRIBUTING.md](CONTRIBUTING.md).
