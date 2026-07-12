@@ -20,9 +20,16 @@ from plane.models.work_items import (
 from pydantic import Field
 
 from plane_mcp.client import get_plane_client_context
+from plane_mcp.response import guard_result_size
 from plane_mcp.tools.pql_reference import PQL_FIELD_HINT, PQL_FULL_REFERENCE
 
 logger = get_logger(__name__)
+
+_LIST_NARROW_HINT = (
+    "Reduce per_page, add a PQL filter to narrow the result set, or pass a sparse "
+    "`fields` list (e.g. 'id,name,sequence_id,state') to drop heavy fields like "
+    "description_html."
+)
 
 
 def _resolve_description_html(description_html: str | None, description_stripped: str | None) -> str | None:
@@ -123,7 +130,7 @@ def register_work_item_tools(mcp: FastMCP) -> None:
                 }
             raise
 
-        return {
+        payload = {
             "results": [
                 item.model_dump() if hasattr(item, "model_dump") else item for item in (response.results or [])
             ],
@@ -134,6 +141,7 @@ def register_work_item_tools(mcp: FastMCP) -> None:
             "next_page_results": response.next_page_results,
             "prev_page_results": response.prev_page_results,
         }
+        return guard_result_size(payload, "list_work_items", narrow_hint=_LIST_NARROW_HINT)
 
     @mcp.tool()
     def count_work_items(
@@ -592,7 +600,7 @@ def register_work_item_tools(mcp: FastMCP) -> None:
                     "hint": "The PQL above failed. Fix it using the reference and retry list_archived_work_items.",
                 }
             raise
-        return {
+        payload = {
             "results": [
                 item.model_dump() if hasattr(item, "model_dump") else item for item in (response.results or [])
             ],
@@ -603,6 +611,7 @@ def register_work_item_tools(mcp: FastMCP) -> None:
             "next_page_results": response.next_page_results,
             "prev_page_results": response.prev_page_results,
         }
+        return guard_result_size(payload, "list_archived_work_items", narrow_hint=_LIST_NARROW_HINT)
 
     @mcp.tool()
     def manage_work_item_archive(project_id: str, work_item_id: str, archive: bool) -> None:
