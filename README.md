@@ -176,6 +176,7 @@ All tools use Pydantic models from the Plane SDK for type safety and validation.
 | `get_project_worklog_summary` | Get work log summary for a project |
 | `get_project_members` | Get all members of a project |
 | `update_project_features` | Update features configuration of a project |
+| `manage_project_archive` | Archive or unarchive a project |
 
 ### Work Items
 
@@ -188,6 +189,11 @@ All tools use Pydantic models from the Plane SDK for type safety and validation.
 | `update_work_item` | Update a work item with partial data |
 | `delete_work_item` | Delete a work item by ID |
 | `search_work_items` | Search work items across a workspace with query string |
+| `count_work_items` | Count work items across the workspace with optional grouping |
+| `list_archived_work_items` | List archived work items in a project with optional PQL filtering |
+| `manage_work_item_archive` | Archive or unarchive a work item |
+| `manage_work_item_assignee` | Add or remove a single assignee without replacing the full list |
+| `manage_work_item_label` | Add or remove a single label without replacing the full list |
 
 ### Cycles
 
@@ -202,6 +208,7 @@ All tools use Pydantic models from the Plane SDK for type safety and validation.
 | `list_cycle_work_items` | List work items in a cycle |
 | `transfer_cycle_work_items` | Transfer work items from one cycle to another |
 | `manage_cycle_archive` | Archive or unarchive a cycle |
+| `complete_cycle` | Complete (close) a cycle by setting its end date to today |
 
 ### Modules
 
@@ -225,6 +232,8 @@ All tools use Pydantic models from the Plane SDK for type safety and validation.
 | `retrieve_initiative` | Retrieve an initiative by ID |
 | `update_initiative` | Update an initiative with partial data |
 | `delete_initiative` | Delete an initiative by ID |
+| `list_initiative_projects` | List projects linked to an initiative |
+| `manage_initiative_projects` | Link or unlink projects of an initiative |
 
 ### Intake Work Items
 
@@ -245,6 +254,14 @@ All tools use Pydantic models from the Plane SDK for type safety and validation.
 | `retrieve_work_item_property` | Retrieve a work item property by ID |
 | `update_work_item_property` | Update a work item property with partial data |
 | `delete_work_item_property` | Delete a work item property by ID |
+| `list_work_item_property_options` | List options for a work item property |
+| `create_work_item_property_option` | Create an option on a work item property |
+| `retrieve_work_item_property_option` | Retrieve a single option from a work item property |
+| `update_work_item_property_option` | Update an option on a work item property |
+| `delete_work_item_property_option` | Delete an option from a work item property |
+| `get_work_item_property_value` | Get the value(s) of a custom property on a work item |
+| `set_work_item_property_value` | Set (create or update) the value of a custom property on a work item |
+| `delete_work_item_property_value` | Delete the value(s) of a custom property on a work item |
 
 ### Milestones
 
@@ -309,6 +326,7 @@ All tools use Pydantic models from the Plane SDK for type safety and validation.
 | `delete_work_item_type` | Delete a work item type by ID |
 | `import_work_item_types_to_project` | Bulk-link workspace-level work item types to a project |
 | `resolve_work_item_type` | Find or create a named type for a project, auto-handling workspace vs project scope and import |
+| `manage_work_item_type_properties` | Attach or detach properties on a work item type in a single call |
 
 ### Work Item Relations
 
@@ -351,6 +369,46 @@ All tools use Pydantic models from the Plane SDK for type safety and validation.
 | `retrieve_page` | Retrieve a page incl. content; optional `max_length` truncation (env default `PLANE_PAGES_MAX_CONTENT_LENGTH`) |
 | `search_pages` | Search pages by title, optionally inside content (client-side, case-insensitive) |
 | `create_page` | Create a workspace or project page |
+| `attach_page_to_work_item` | Link a page to a work item |
+| `detach_page_from_work_item` | Remove a page link from a work item |
+| `list_work_item_pages` | List all pages linked to a work item |
+
+### Work Item Attachments
+
+| Tool Name | Description |
+|-----------|-------------|
+| `list_work_item_attachments` | List all attachments for a work item |
+| `get_work_item_attachment_download_url` | Get a presigned download URL for a work item attachment |
+| `read_work_item_attachment` | Fetch an attachment's content so the LLM can read or analyze it |
+| `upload_work_item_attachment_from_url` | Fetch a file from a public URL and attach it to a work item |
+| `delete_work_item_attachment` | Delete an attachment from a work item |
+
+### Estimates
+
+| Tool Name | Description |
+|-----------|-------------|
+| `get_project_estimate` | Get the estimate configuration for a project |
+| `create_project_estimate` | Create a new estimate for a project |
+| `update_project_estimate` | Update the estimate for a project |
+| `delete_project_estimate` | Delete the estimate for a project |
+| `link_estimate_to_project` | Link an estimate to a project, making it the active estimate system |
+| `list_project_estimate_points` | List all valid estimate points for a project |
+| `create_project_estimate_points` | Create estimate points for a project estimate |
+| `update_project_estimate_point` | Update a single estimate point |
+| `delete_project_estimate_point` | Delete a single estimate point |
+
+### Roles
+
+| Tool Name | Description |
+|-----------|-------------|
+| `list_roles` | List role definitions in the workspace |
+| `retrieve_role` | Retrieve a role definition by ID |
+
+### PQL
+
+| Tool Name | Description |
+|-----------|-------------|
+| `get_pql_reference` | Return the Plane Query Language (PQL) syntax reference (also exposed as the `resource://pql-reference` MCP resource) |
 
 ### Workspaces
 
@@ -371,8 +429,9 @@ All tools use Pydantic models from the Plane SDK for type safety and validation.
 | Tool Name | Description |
 |-----------|-------------|
 | `get_instance_info` | Get edition/version of the connected Plane instance and its known API limitations (e.g. Community Edition) |
+| `list_toolsets` | List the tool groups (toolsets) this server supports and which are active |
 
-**Total Tools**: 100+ tools across 20 categories
+**Total Tools**: 142 tools across 24 categories (`scripts/check_tool_docs.py` keeps these tables in sync)
 
 ## Development
 

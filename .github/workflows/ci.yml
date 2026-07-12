@@ -74,6 +74,9 @@ jobs:
           pytest tests/ --ignore=tests/test_integration.py -v
           --cov=plane_mcp --cov-report=term-missing --cov-fail-under=53
 
+      - name: README tool tables in sync
+        run: python scripts/check_tool_docs.py
+
   audit:
     runs-on: ubuntu-latest
     steps:
