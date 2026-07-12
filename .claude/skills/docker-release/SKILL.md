@@ -8,12 +8,12 @@ description: Use when building the Docker image, changing the Dockerfile, taggin
 ## Build & run
 
 ```bash
-docker build -t plane-mcp-server:dev .
+docker build -t plane-ce-mcp:dev .
 
 # HTTP transport (default CMD), port 8211
 docker run --rm -p 8211:8211 \
   -e PLANE_BASE_URL=http://<self-host-plane>:<port> \
-  plane-mcp-server:dev
+  plane-ce-mcp:dev
 ```
 
 Image: `python:3.11-slim`, deps installed with `uv pip install --system`. Default
