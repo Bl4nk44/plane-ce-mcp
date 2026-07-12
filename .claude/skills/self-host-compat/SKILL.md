@@ -30,7 +30,7 @@ differently than on Cloud.
 - Fallbacks (e.g. `/work-items/` → legacy `/issues/`) belong in the shared
   compatibility layer, logged at WARNING. Never patch a single tool silently.
 - If the fix is generally useful (not a self-host hack), plan an upstream PR.
-- After fixing: run the relevant section of `docs/self-host-testing.md` against the
+- After fixing: exercise the affected tools against the
   local instance.
 
 ## Auth model (this fork)

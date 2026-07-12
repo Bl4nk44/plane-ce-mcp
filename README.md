@@ -27,11 +27,30 @@ Edition instance and you hit missing "lite" endpoints, raw SDK stack traces on e
 
 May still work against Plane Cloud - untested, unmaintained, not a goal.
 
-## Quick start (stdio)
+## Quick start
 
-Requirements: **Python 3.10+** and [uv](https://docs.astral.sh/uv/).
+Requirements: **Python 3.10+** and [uv](https://docs.astral.sh/uv/). No clone, no
+install - `uvx` runs the server straight from GitHub.
 
-**MCP client configuration:**
+**1. Get your credentials from Plane:**
+
+- API key: Plane → Workspace Settings → API tokens → create token
+- Workspace slug: the part of your Plane URL after the host
+  (`https://plane.your-domain.tld/<slug>/`)
+
+**2. Smoke-test the server** (optional, confirms connectivity):
+
+```bash
+PLANE_API_KEY=<your-api-key> \
+PLANE_WORKSPACE_SLUG=<your-workspace-slug> \
+PLANE_BASE_URL=https://plane.your-domain.tld \
+uvx --from git+https://github.com/Bl4nk44/plane-ce-mcp plane-ce-mcp stdio
+```
+
+Server starts and waits for MCP messages on stdin - Ctrl+C to exit. Errors at this
+point mean wrong URL or key, not a client problem.
+
+**3. Add to your MCP client** (Claude Code, Claude Desktop, Cursor, ...):
 
 ```json
 {
@@ -49,8 +68,27 @@ Requirements: **Python 3.10+** and [uv](https://docs.astral.sh/uv/).
 }
 ```
 
+For Claude Code that's one command:
+
+```bash
+claude mcp add plane \
+  -e PLANE_API_KEY=<your-api-key> \
+  -e PLANE_WORKSPACE_SLUG=<your-workspace-slug> \
+  -e PLANE_BASE_URL=https://plane.your-domain.tld \
+  -- uvx --from git+https://github.com/Bl4nk44/plane-ce-mcp plane-ce-mcp stdio
+```
+
 `PLANE_BASE_URL` must point at your instance's API - the default is Plane Cloud
 (`https://api.plane.so`), so self-host setups **must** set it.
+
+### Run from source
+
+```bash
+git clone https://github.com/Bl4nk44/plane-ce-mcp.git
+cd plane-ce-mcp
+uv pip install -e .
+PLANE_API_KEY=... PLANE_WORKSPACE_SLUG=... PLANE_BASE_URL=... python -m plane_mcp stdio
+```
 
 ## HTTP transport (self-hosted, PAT auth)
 
@@ -338,8 +376,8 @@ ruff format plane_mcp/
 ruff check plane_mcp/
 ```
 
-Integration tests run against a live Plane instance - see
-[docs/self-host-testing.md](docs/self-host-testing.md) for the manual checklist.
+Integration tests run against a live Plane instance - copy `.env.test` to
+`.env.test.local` with real values, then `export $(cat .env.test.local | xargs) && pytest tests/ -v`.
 
 ## Attribution & License
 

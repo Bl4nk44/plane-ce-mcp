@@ -31,5 +31,5 @@ are affected, link to `docs/plane-api-compat.md` entry.
 - One logical change per commit; PR diff ≤150 lines where feasible - split larger work.
 - Squash merge.
 - PR description states: what was tested against the local self-host instance
-  (reference `docs/self-host-testing.md` items run).
+  (list which tools were exercised).
 - No merge without green CI.

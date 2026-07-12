@@ -30,7 +30,7 @@ def tool_name(param: str, optional_param: str | None = None) -> SomePlaneModel:
 3. Python 3.10+ union syntax (`str | None`), return `plane-sdk` Pydantic models.
 4. New module → register it in `plane_mcp/tools/__init__.py`.
 5. Update the README "Available Tools" table.
-6. Verify against the local self-host instance (`docs/self-host-testing.md`).
+6. Verify against the local self-host instance.
 
 ## Error handling (mandatory)
 
@@ -39,7 +39,7 @@ def tool_name(param: str, optional_param: str | None = None) -> SomePlaneModel:
 - 404: distinguish missing resource vs endpoint unavailable on this Plane version -
   consult and update `docs/plane-api-compat.md`.
 - Endpoint version differences go in the shared compatibility layer (Stage 5 of
-  `docs/roadmap.md`), never inline per-tool.
+  never inline per-tool.
 - Log triggered fallbacks at WARNING (tool, failed endpoint, endpoint used).
 
 ## Changing an existing tool
